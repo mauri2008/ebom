@@ -3,104 +3,88 @@ import React, { useState, useContext, useEffect } from 'react';
 import Header from '../../components/header';
 import HeaderTable from '../../components/Table/header';
 import Table from '../../components/Table';
+import { useParams } from 'react-router-dom'
 
 import NotFoundData from '../../components/notFoundData';
-import { errorNotification, successNotification } from '../../helpes/notification';
+
+import { searchClient, setDataTable } from '../../helpes/functions'
 
 import UseApi from '../../services/api'
-import Paginations from '../../components/pagination';
 
 import { StateContext } from '../../context';
 
 import Modal  from '@mui/material/Modal';
 import TextField  from '@mui/material/TextField';
-import FormControl  from '@mui/material/FormControl';
-import InputLabel  from '@mui/material/InputLabel';
-import Select  from '@mui/material/Select';
-import MenuItem  from '@mui/material/MenuItem';
-import Button from '@mui/material/Button';
-import Autocomplete  from '@mui/material/Autocomplete';
+
 import Loading from '../../components/Loading'
 import Add from '@mui/icons-material/Add';
+import FormSales from './Form'
+import BoxModal from '../../components/boxModal'
 
-
-
-import { useFormik } from 'formik';
 import { handleDelete } from '../../services/actionsRest'
-
 
 import { 
     Container, 
-    Content ,
-    ContainerBox,
-    ContentBox,
-    HeaderBox,
-    CombineButton,
-
+    Content ,   
 } from './style';
 
 export default function Sales(){
 
+    const paramsURL = useParams()
     const ENDPOINT = 'sales';
-    const PAGETITLE = 'compras'
+    const PAGETITLE = 'Compras'
 
     const [listData, setListData] = useState(false);
     const [countData, setCountdata] = useState(0);
     const [clientData, setClientData] = useState([])
-    const [valueClient, setValueClient] = useState([])
-    const [headerTable, setHeaderTable] = useState(false);
+    const [updateClient, setUpdateClient] = useState(false)
     const [modalNewElement, setModalNewElement ] = useState(false);
     const [update, setUpdate] = useState(false);
     const [loading, setLoading] = useState(false);
     const [pageNow, setPageNow] = useState(0);
     const [countPages, setCountPages] = useState(0);
+    const [validIdURL, setValidIdURL] = useState(true)
+    const [clearForm, setClearForm] = useState(false)
+    const [dataClienURL, setDataClientURL] = useState({label:'', id:''})
+
     const {state, actions} = useContext(StateContext)
 
-
     const api = UseApi();
+
 
     const getData = async (search = false)=>{
         setLoading(true);
         setListData(false);
-        let list = [];
         
         const offset = (pageNow-1)*10
-        
-        const response =search? await api.insert(`${ENDPOINT}/search`,{search}):await api.get(`${ENDPOINT}/${offset}`);
-        if(response.status && response.status ==='error'){
-            errorNotification(actions, response.message)
-            setLoading(false)
-            return '';
-        }
+        const response =search? await api.insert(`${ENDPOINT}/search`,{search}, actions):await api.get(`${ENDPOINT}/${offset}`, actions);
+
         if(Object.keys(response.data).length === 0){          
             setLoading(false)
             return ''
         }
-        response.data.map(data => {
-             let obj={
-                id:data.id,
-                Paticipante:data.client,
-                Pagante: data.paid_sale === 'yes'? 'Sim':'Não',
-                Valor: data.value_sale,
-                Pago: data.paying_sale === 'yes'?'Sim':'Não',
-                Forma: data.form_of_payment,
-                Obs: data.note
-             }
-             list.push(obj);
-             return '';
-         })
+        
         setCountPages(response.pages)
-        setListData(list);
+        setListData(setDataTable(response.data, 
+            [
+                {key:'id', title:'id'},
+                {key:'client', title:'Participane'},
+                {key:'value_sale', title:'Valor'},
+                {key:'paying_sale', title:'Pagante'},
+                {key:'paid_sale', title:'Pago'},
+                {key:'form_of_payment', title:'Forma de Pagamento'},
+                {key:'note', title:'Observação'},
+            ]
+        ));
+
         setCountdata(response.total?? Object.keys(response.data).length);
         setLoading(false);       
     }
+
     const getClients = async()=>{
         let mergeDataclient = [];
-        const response = await api.get('clients/all');
-        if(response.status && response.status ==='error'){
-            errorNotification(actions, response.message)
-            return '';
-        }
+        const response = await api.get('clients/all',actions);
+
         if(Object.keys(response.data).length === 0){          
             return ''
         }
@@ -110,29 +94,13 @@ export default function Sales(){
                 id:element.id
             }
             mergeDataclient.push(obj)
-
         })
-
         setClientData(mergeDataclient);
 
     }
-
     const handleShowModal = () => {
+        setClearForm(true)
         setModalNewElement(!modalNewElement)
-        handleCleanForm()
-    }
-
-    const handleCleanForm = ()=>{
-        setValueClient([])
-        formik.setValues({
-            id:"",
-            paid_sale:"",  
-            paying_sale:"",
-            value_sale: "50.00",
-            form_of_payment:"",
-            note:''
-        });
-        setUpdate(false)
     }
 
     const handleDeleteElement = (id)=>{
@@ -143,28 +111,18 @@ export default function Sales(){
     }
 
     const handleShowUpdate = async (idClient)=>{
-        setLoading(true)
-        const response = await api.insert(`${ENDPOINT}/search`,{searchid:idClient})
-        console.log(response)
-        if(response && response.status ==='error')
-        {
-            setLoading(false);
-            errorNotification(actions,'Ocorreu um erro interno, tente novamente')
-        }
-        const {id, paid_sale, paying_sale,value_sale, form_of_payment, note, name_client, id_client } = response.data;
 
-            setValueClient({label:name_client, id:id_client})
-            formik.setValues({
-                id,
-                paid_sale,  
-                paying_sale,
-                value_sale,
-                form_of_payment,
-                note 
-            })
-        setValueClient({label:name_client, id:id_client})
-        setUpdate(true);
-        setLoading(false);
+        const response = await api.insert(`${ENDPOINT}/search`,{searchid:idClient}, actions)
+        
+        if(Object.keys(response).length === 0){          
+            setLoading(false)
+            return ''
+        }
+        const {client, id_client, ...dataUpdate } = response.data;
+            
+   
+        setUpdateClient({label:client, id:id_client})
+        setUpdate(dataUpdate);
         setModalNewElement(true);
     }
 
@@ -173,48 +131,44 @@ export default function Sales(){
         {
             getData(element.target.value);
         }
-
     }
 
-    const formik = useFormik({
-        initialValues:{
-            id:"",
-            paid_sale:"",  
-            paying_sale:"",
-            value_sale: "50.00",
-            form_of_payment:"",
-            note:'' 
-        },
-
-        onSubmit: async value =>{
-            
-            value.id_client = valueClient.id;
-
-            const insertChurch = !update ? await api.insert(ENDPOINT,value) : await api.update(`${ENDPOINT}/update/${value.id}`,value);
-            if(insertChurch && insertChurch['status'] && insertChurch['status'] ==='error')
-            {
-                setLoading(false);
-                errorNotification(actions, 'Ocorreu um erro, tente novamente!')
-            }
-            getData()
-            handleCleanForm()
-            setLoading(false);
-            successNotification(actions,'Ação registrada com sucesso!');
-            setModalNewElement(false);
-        }
-    })
 
     const handlePagination= (event, value) => {     
         setPageNow(value)
     }
+
+    const getdataClientURL = async()=>{
+        console.log(`Chamada ${paramsURL?.idclient}`)
+        if(validIdURL && paramsURL?.idclient){
+            console.log('teste')
+            const dataClient = await searchClient({api,ENDPOINT:'clients',search:{searchid:paramsURL.idclient}})
+            if(!dataClient){return ''}
+            
+            setDataClientURL({label:dataClient.name_client, id:paramsURL.idclient}) 
+            setModalNewElement(true)
+            setValidIdURL(false)
+        }else{
+            setDataClientURL({label:'', id:''})
+        }
+    }
+
     useEffect(()=>{
         getData()
     },[pageNow])
+
+    useEffect(() => {
+        if(!modalNewElement){
+            getData()
+        }
+    }, [modalNewElement]);
 
     useEffect(()=>{
         setPageNow(1);
         getData()
         getClients()
+        getdataClientURL()
+
     },[])
 
     return (
@@ -246,136 +200,38 @@ export default function Sales(){
                         </HeaderTable>
                         <div>
                             {
-                                listData &&
+                               (!loading && listData) &&
                                     <div>
                                         <Table
-                                            data={listData}
-                                            head={headerTable}
+                                            data={listData}                                           
                                             handleUpdate={handleShowUpdate.bind(this)}
                                             handleDelete={handleDeleteElement.bind(this)}
+                                            countPagination={countPages}
+                                            page={pageNow}
+                                            handlePagination={handlePagination.bind(this)}
                                         />
-                                        <Paginations count={countPages} page={pageNow} handleChange={handlePagination.bind(this)}/>
                                     </div>
                             }
                             {
-                                !listData &&
+                                (!loading && !listData) &&
                                     <NotFoundData/>
                             }
                         </div>
                         <Modal
                             open={modalNewElement}
-                            onClose={()=>{}}
-                            sx={{display:'flex', justifyContent:'center', alignItems:'center'}}
                         >
-                            <ContainerBox>
-                                <HeaderBox>
-                                    <h3>Novo Participantes</h3> 
-                                    {JSON.stringify(valueClient)}                        
-                                </HeaderBox>
-                                <ContentBox>
-                                    <form onSubmit={formik.handleSubmit}>
-                                        <input type="hidden" name="id" value={formik.values.id}/>
+                            <BoxModal titleModal='Adicionar partipante' handleClose={()=>setModalNewElement.bind()}>
+                                <FormSales  
+                                    clients={clientData} 
+                                    clientUpdate={updateClient}
+                                    clientURL = {dataClienURL}
+                                    update={update}
+                                    setCloseModal={setModalNewElement.bind()}
+                                    setCleanForm={setClearForm.bind()}
+                                    cleanForm={clearForm}
 
-                                        <Autocomplete 
-                                            disablePortal
-                                            value={valueClient}
-                                            options={clientData}
-                                            getOptionLabel={(option) => option.label || ''}
-                                            onChange={(event, newValue)=>{
-                                                setValueClient(newValue)
-                                            }}
-                                            renderInput={(params)=> <TextField {...params} label="Participante"/>}
-                                        />
-                                        
-
-                                        <FormControl fullWidth sx={{marginTop:3}}>
-                                            <InputLabel id="label-paid">Participante Pagante</InputLabel>
-                                            <Select
-                                                labelId='label-paid'
-                                                label="Participante Pagante"
-                                                name="paid_sale"
-                                                value={formik.values.paid_sale??''}
-                                                onChange={formik.handleChange}
-
-                                            >
-                                                <MenuItem value='yes'>Sim</MenuItem>
-                                                <MenuItem value='no'>Não</MenuItem>
-                                            </Select>
-                                        </FormControl>
-
-
-
-                                        <FormControl fullWidth sx={{marginTop:3,}}>
-                                            <InputLabel id="label-paying">Pago</InputLabel>
-                                            <Select
-                                                labelId='label-paying'
-                                                label="Pago"
-                                                name="paying_sale"
-                                                value={formik.values.paying_sale ?? ''}
-                                                onChange={formik.handleChange}
-
-                                            >
-                                                <MenuItem value="yes">Sim</MenuItem>
-                                                <MenuItem value="no">Não</MenuItem>
-                                            </Select>
-                                        </FormControl>
-
-                                        <FormControl fullWidth sx={{marginTop:3,}}>
-                                            <InputLabel id="label-form-of-payment">Forma de pagamento</InputLabel>
-                                            <Select
-                                                labelId='label-form-of-payment'
-                                                label="Forma de pagamento"
-                                                name="form_of_payment"
-                                                value={formik.values.form_of_payment ?? ''}
-                                                onChange={formik.handleChange}
-
-                                            >
-                                                <MenuItem value="nao_pago">Não Pago</MenuItem>
-                                                <MenuItem value="dinheiro">Dinheiro</MenuItem>
-                                                <MenuItem value="cartão">Cartão</MenuItem>
-                                            </Select>
-                                        </FormControl>
-
-                                        <TextField
-                                            name="value_sale"
-                                            type="text"
-                                            label="Valor"
-                                            fullWidth
-                                            size='normal'
-                                            className="inputUser"
-                                            value="50.00"
-                                            onBlur={formik.handleBlur}
-                                            onChange={formik.handleChange}
-                                            disabled
-                                            sx={{marginTop:3,}}
-                                        />
-                                        {formik.touched.value_sale && formik.errors.value_sale ? (
-                                            <div className="messageError">{formik.errors.name_church}</div>
-                                        ) : null}
-
-                                        
-                                        <TextField
-                                            name="note"
-                                            label="Observação"
-                                            fullWidth
-                                            size='normal'
-                                            className="inputUser"
-                                            multiline
-                                            rows={5}
-                                            value={formik.values.note}
-                                            onBlur={formik.handleBlur}
-                                            onChange={formik.handleChange}
-
-                                            sx={{marginTop:1,}}
-                                        />
-
-                                        <CombineButton>
-                                            <Button type="submit">Salvar</Button>
-                                            <Button color="error" onClick={()=>handleShowModal()}>Cancelar</Button>
-                                        </CombineButton>
-                                    </form>
-                                </ContentBox>
-                            </ContainerBox>
+                                />
+                            </BoxModal>
                         </Modal>
                     </>
                 }

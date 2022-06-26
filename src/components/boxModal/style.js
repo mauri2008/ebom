@@ -1,13 +1,23 @@
 import styled from 'styled-components';
 import Modal from '@mui/material/Modal'
 
-export const Container = styled(Modal)`
-    display:flex ;
-    justify-content:center ;
-    align-items:center ;
+export const styleContainerModal = {
+    position:'absolute',
+    top:'50%',
+    left:'50%',
+    transform: 'translate(-50%, -50%)',
+    width:500,
+    bgcolor:'#fff',
+    boxShadow:'24px',
+    p:5
+}
 
-`
-export const Content = styled.section`
-    background-color: #fff ;
-    width:700px;
+export const CloseModal = styled.div`
+    width:100% ;
+    display:flex;
+    justify-content: flex-end ;
+
+    svg{
+        cursor:pointer ;
+    }
 `

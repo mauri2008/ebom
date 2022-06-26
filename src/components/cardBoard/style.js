@@ -20,6 +20,7 @@ export const SessionLeft = styled.section`
     }
 `
 export const SessionRight = styled.div`
+    min-width: 150px ;
     padding:10px ;
     display: flex ;
     justify-content: center ;

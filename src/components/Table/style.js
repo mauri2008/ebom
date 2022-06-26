@@ -35,7 +35,7 @@ font-family: 'roboto', sans-serif;
 
 
 
-        & img{
+        /* & img{
             width: 2rem;
         }
 
@@ -55,7 +55,7 @@ font-family: 'roboto', sans-serif;
         }
         & a:hover{
             opacity:0.5 ;
-        }
+        } */
     }
 }
 }

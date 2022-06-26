@@ -1,75 +1,51 @@
 import * as C from './style'
-import DeleteForever from '@mui/icons-material/DeleteForever'
-import Edit from '@mui/icons-material/Edit'
+import Pagination from '../../components/pagination';
 
-const Row = ({record ,handleDelete, handleUpdate, handleView , handleQrCode}) =>{
-    const keys  = Object.keys(record)
-    return (
-        <tr key={record.id}>
-            {
-                handleQrCode &&
-                <td>
-                    <input type="checkbox" name='selectQrCode' value={record.id} onChange={check=> handleQrCode(check)}/>
-                </td>
-            }
-            {
-                keys.map(key => {
-                    if(key ==='tumber'){
-                        return <td key={key}><img src={record[key]} alt='Tumber'/></td>
-                    }else{
-
-                        return <td key={key}>{record[key]}</td>
-                    }
-                })
-
-            }
-            <td>
-            {
-                handleView &&
-                    <a to={`${handleView}/${record.id||0}`}>ver</a>
-            }
-            {
-                handleUpdate &&
-                    <a to="#" onClick={()=>handleUpdate(record.id||0)} title="Editar" style={{color:'orange'}}><Edit/></a>
-            }
-            {
-                handleDelete &&
-                    <a onClick={()=>handleDelete(record.id||0)} title="Remover" style={{color:'red', marginLeft:10}}><DeleteForever/></a>
-            }
-            </td>
-        </tr>
-    )
-}
+import Head from './head'
+import Rows from './rows'
 
 
-const Head = ({keys, head}) => {
-    const tableHead = head || {}
-    return(
-        <thead>
-            <tr>
-                {keys.map(key=><th key={key}>{tableHead[key] || key}</th>)}
-            </tr>
-        </thead>
-    )
-}
+const Table = (
+    {   data, 
+        head ,
+        handleDelete, 
+        handleUpdate, 
+        handleView, 
+        handleQrCode,
+        countPagination,
+        page,
+        handlePagination
+    })=>{
 
-const Table = ({data, head ,handleDelete, handleUpdate, handleView, handleQrCode})=>{
-
+    const blackList =[
+        'paidout',
+    ]
     
-    const keys = Object.keys(data[0]);
-    return(
+    const objectkeys = Object.keys(data[0]);
+    const keys = objectkeys.filter(key => !blackList.includes(key))
 
+
+    const actions = {
+        handleDelete:handleDelete, 
+        handleUpdate:handleUpdate,
+        handleView:handleView, 
+        handleQrCode:handleQrCode
+    }
+
+    return(
         <C.Container>
             <C.Table>
-                <Head keys={keys} head={head}/>
+                <Head keys={keys} head={head} handleQrCode={handleQrCode}/>
                 <tbody>
-
                     {
-                        data.map(record => <Row key={record.id} record={record} handleDelete={handleDelete} handleUpdate={handleUpdate} handleView={handleView} handleQrCode={handleQrCode}/>)
+                        data.map(record => <Rows key={record.id} record={record}  actions={actions} />)
                     }
                 </tbody>
             </C.Table>
-            
+            {
+                countPagination &&
+                    <Pagination  count={countPagination} page={page} handleChange={handlePagination.bind(this)}/>
+            }
         </C.Container>
     );
 }

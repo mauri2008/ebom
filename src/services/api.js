@@ -1,9 +1,8 @@
-import React, { useContext } from "react";
-import { StateContext } from "../context"
+import {AlertError} from './alertError';
 const BASEAPI = "http://127.0.0.1:8000/api/";
 
 
-const apiFetch = async (endpoint, body, method) =>{
+const apiFetch = async (endpoint, body, method, actions) =>{
         
     try{
         const token = sessionStorage.getItem('token');
@@ -24,12 +23,25 @@ const apiFetch = async (endpoint, body, method) =>{
 
         const res= await fetch(BASEAPI+endpoint,params)
 
+        const responseStatus = {
+          200: await res.json(),
+          404: 'Elemento requisitado Não encontrado',
+          500: 'Ocorreu um erro interno, Tente novamente'
+        }
+
         const status = await res.status;
-        const json = (status === 200)? await res.json():{status:'error', message:'Ocorreu um erro no sistema! tente novamente'};
-        return (status === 204)?'' :json;
+        if(status === 200)
+          return responseStatus[status];
+        
+        if(status !== 204){
+          AlertError(actions, responseStatus[status])
+          return ''
+        }
+
 
      }catch(error){
-        return {status:'error', message:"Error no sistema tente novamente!", error};
+        AlertError(actions, 'Ocorreu um erro No servidro tente novamente')
+        return '';
      }
 }
 
@@ -60,35 +72,39 @@ const API = {
         );
         return response;
     },
-    get: async(endpoint)=>{
+    get: async(endpoint, action )=>{
       const response = await apiFetch(
         endpoint,
         '',
-        'get'
+        'get',
+        action
       )
       return response;
     },
-    insert:async(endpoint,data)=>{
+    insert:async(endpoint,data,action)=>{
       const response = await apiFetch(
         endpoint,
         data,
-        'post'
+        'post',
+        action
       )
       return response;
     },
-    update:async(endpoint,data)=>{
+    update:async(endpoint,data,action)=>{
       const response = await apiFetch(
         endpoint,
         data,
-        'put'
+        'put',
+        action
       )
       return response;
     },
-    delete:async(endpoint)=>{
+    delete:async(endpoint, action)=>{
       const response = await apiFetch(
         endpoint,
         '',
-        'delete'
+        'delete', 
+        action
       )
       return response;
     },

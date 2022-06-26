@@ -1,13 +1,24 @@
 import  React from 'react';
-import { Container, Content } from './style'; 
+import  Box from '@mui/material/Box';
+import  { styleContainerModal, CloseModal } from './style'
+import Close from '@mui/icons-material/Close'
 
 
-export default function BoxModal({children}){
+
+
+
+const  BoxModal= ({handleClose,titleModal ,children})=>{
     return (
-        <Container>
-            <Content>
+        <Box sx={styleContainerModal}>
+            <CloseModal>
+                <Close onClick={()=>handleClose(false)}/>
+            </CloseModal>
+            <Box>
+                <h2 className="TitleModal" >{titleModal}</h2>
                 {children}
-            </Content>
-        </Container>
+            </Box>
+        </Box>
     )
 }
+
+export default BoxModal

@@ -1,28 +1,27 @@
 import React, { useState, useContext, useEffect } from 'react';
 
-import Header from '../../components/header';
-import HeaderTable from '../../components/Table/header';
-import Table from '../../components/Table';
-import Modal  from '@mui/material/Modal';
 import { errorNotification, successNotification } from '../../helpes/notification';
-import NotFoundData from '../../components/notFoundData';
+
 import UseApi from '../../services/api'
 import { StateContext } from '../../context';
+
+import Modal  from '@mui/material/Modal';
 import TextField  from '@mui/material/TextField';
-import FormControl  from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import InputLabel  from '@mui/material/InputLabel';
-import Select  from '@mui/material/Select';
-import MenuItem  from '@mui/material/MenuItem';
-import Loading from '../../components/Loading';
 import Button from '@mui/material/Button';
+
+import NotFoundData from '../../components/notFoundData';
+import Table from '../../components/Table';
+import Header from '../../components/header';
+import HeaderTable from '../../components/Table/header';
+import Loading from '../../components/Loading';
+
+import { setDataTable } from '../../helpes/functions'
+
 import { useFormik } from 'formik';
 import * as Yup from 'yup'
 import { handleDelete } from '../../services/actionsRest'
 
 import Add from '@mui/icons-material/Add';
-import Search from '@mui/icons-material/Search'
 
 import { 
     Container, 
@@ -41,7 +40,6 @@ export default function Churchs(){
 
     const [listData, setListData] = useState(false);
     const [countData, setCountdata] = useState(0);
-    const [churchs, setChurchs] = useState([])
     const [headerTable, setHeaderTable] = useState(false);
     const [modalNewElement, setModalNewElement ] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -49,32 +47,33 @@ export default function Churchs(){
     const [update, setUpdate] = useState(false);
 
     const {state, actions} = useContext(StateContext)
+
     const api = UseApi();
+
+    const valueDefaultFormik = {
+        id:'',
+        name_church:'',
+        responsible_church:'',
+    }
 
     const getData = async (search = false)=>{
         setLoading(true);
-        setListData(false);
-        let list = [];
-        const response =search? await api.insert(`${ENDPOINT}/search`,{search}):await api.get(ENDPOINT);
-        if(response.status && response.status ==='error'){
-            errorNotification(actions, response.message)
-            setLoading(false)
-            return '';
-        }
+
+        const response =search? await api.insert(`${ENDPOINT}/search`,{search}, actions):await api.get(ENDPOINT, actions);
+
         if(Object.keys(response.data).length === 0){          
             setLoading(false)
             return ''
         }
-        response.data.map(data => {
-            let obj={
-                id:data.id,
-                Igreja:data.name_church,
-                Responsavel:data.responsible_church,
-            }
-            list.push(obj);
-            return '';
-        })
-        setListData(list);
+
+        setListData(setDataTable(response.data,
+            [
+                {key:'id',title:'id'},
+                {key:'name_church',title:'Igreja'},
+                {key:'responsible_church',title:'Pastor'},
+            ]
+            ))
+
         setCountdata(listData.length);
         setLoading(false);       
     }
@@ -85,29 +84,29 @@ export default function Churchs(){
     }
 
     const handleCleanForm = ()=>{
-        formik.setValues({
-            name_church:'',
-            responsible_church:'',
-        });
+        formik.setValues(valueDefaultFormik);
         setUpdate(false)
     }
 
     const handleDeleteElement = (id)=>{
+        setLoading(true)
         handleDelete(id, actions,ENDPOINT,'Igreja')
         setTimeout(() => {
             getData()
         }, 500);
+        setLoading(false)
     }
 
     const handleShowUpdate = async (idClient)=>{
         setLoading(true)
-        const response = await api.insert(`${ENDPOINT}/search`,{searchid:idClient})
-        if(response && response.status ==='error')
-        {
-            setLoading(false);
-            errorNotification(actions,'Ocorreu um erro interno, tente novamente')
+        const response = await api.insert(`${ENDPOINT}/search`,{searchid:idClient}, actions)
+
+        if(Object.keys(response).length === 0){          
+            setLoading(false)
+            return ''
         }
         const {id,name_church, responsible_church} = response.data;
+
         formik.setValues({
             id,
             name_church,
@@ -127,11 +126,7 @@ export default function Churchs(){
     }
 
     const formik = useFormik({
-        initialValues:{
-            id:'',
-            name_church:'',
-            responsible_church:'',
-        },
+        initialValues:valueDefaultFormik,
         validationSchema: Yup.object({
             name_church: Yup.string().required('Informe nome da igreja').min(3).max(256),
             responsible_church: Yup.string().required('Informe o responsavel pela igreja'),

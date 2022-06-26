@@ -12,7 +12,7 @@ export const ContainerBox = styled.div`
     background:#fff ;
     width: 800px;
     box-sizing: border-box;
-    padding:5px 20px;
+    padding:20px 20px 2rem 20px;
 
     .inputUser{
         margin-bottom: 20px;

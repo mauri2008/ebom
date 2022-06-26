@@ -82,4 +82,8 @@ export const GlobalStyle = createGlobalStyle`
         font-family:'roboto', sans-serif ;
         margin-bottom:5px ;
     }
+
+    .TitleModal{
+        margin-bottom: 20px;
+    }
 `

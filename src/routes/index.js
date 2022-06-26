@@ -20,7 +20,8 @@ export default function ListRoutes(){
             <Route path="/usuarios" component={CreateUser} isPrivate/>
             <Route path="/participantes" component={Clients} isPrivate/>
             <Route path="/igrejas" component={Churchs} isPrivate/>
-            <Route path="/compras" component={Sales} isPrivate/>
+            <Route path="/compras" exact component={Sales} isPrivate/>
+            <Route path="/compras/:idclient" component={Sales} isPrivate/>
             <Route path="/financeiro" component={Financial} isPrivate/>
             
         </Switch>
