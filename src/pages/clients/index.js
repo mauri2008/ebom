@@ -79,16 +79,13 @@ export default function Clients(){
 
     const getClients = async (search = false)=>{
         setLoading(true);
-
         const offset = (pageNow-1)*10;
         const response =search? await api.insert(`${ENDPOINT}/search`,{search}, actions):await api.get(`${ENDPOINT}/${offset}`, actions);
-        let listClients = []
 
         if(Object.keys(response.data).length === 0){          
             setLoading(false)
             return ''
         }
-
 
         setlistClients(setDataTable(response.data,
             [            
@@ -334,147 +331,155 @@ export default function Clients(){
                                 </>
                         }
                         {
-                            !listClient &&
+                            !listClient && !loading &&
                                 <NotFoundData/>
                         }
                     </div>
-                    <ModalBox
-                        open={modalNewClient}
-                        onClose={()=>{}}
-                    >
-                        <ContainerBox>
-                            <HeaderBox>
-                                <h3>Novo Participantes</h3>                         
-                            </HeaderBox>
-                            <Box>
-                                <input type="hidden" name="id" value={formik.values.id}/>
-                                <form onSubmit={formik.handleSubmit}>
-                                    <Stack spacing={2}>
 
-                                        <FormControlLabel 
-                                            control={
-                                                <Checkbox name='shepherd' checked={isShepherd} onChange={handleSetIsShepherd}/>
-                                            } 
-                                            label="Participante é um pastor?" 
-                                            sx={{display:'flex', justifyContent:'flex-end', marginTop:"20px", }}
-                                        />
-                                        <TextField
-                                            name="name_client"
-                                            type="text"
-                                            label="Nome"
-                                            fullWidth
-                                            size='normal'
-                                            className="inputUser"
-                                            value={formik.values.name_client}
-                                            onBlur={formik.handleBlur}
-                                            onChange={formik.handleChange}
-                                            helperText={formik.touched.name_client && formik.errors.name_client?formik.errors.name_client:''}
-                                            error={formik.touched.name_client && formik.errors.name_client}
-                                        />
-
-                                        <TextField
-                                            name="email"
-                                            type="email"
-                                            label="Email"
-                                            fullWidth
-                                            size='normal'
-                                            className="inputUser"
-                                            value={formik.values.email}
-                                            onBlur={formik.handleBlur}
-                                            onChange={formik.handleChange}
-                                            error={formik.touched.email && formik.errors.email}
-                                            helperText={formik.touched.email && formik.errors.email?formik.errors.email:''}
-                                        />
-
-                                        <TextField
-                                            name="phone"
-                                            type="text"
-                                            label="Telefone"
-                                            fullWidth
-                                            size='normal'
-                                            className="inputUser"
-                                            value={formik.values.phone}
-                                            onBlur={formik.handleBlur}
-                                            onChange={formik.handleChange}
-                                            error={formik.touched.phone && formik.errors.phone}
-                                            helperText={formik.touched.phone && formik.errors.phone?formik.errors.phone:''}
-                                        />
-
-                                        <FormControl fullWidth>
-                                            <InputLabel id="label-church">Igreja</InputLabel>
-                                            <Select
-                                                labelId='label-church'
-                                                label="Igreja"
-                                                name="id_church"
-                                                value={formik.values.id_church}
-                                                onChange={formik.handleChange}
-                                                error={formik.touched.id_church && formik.errors.id_church}
-                                                helperText={formik.touched.id_church && formik.errors.id_church?formik.errors.id_church:''}
-
-                                            >
-                                                <MenuItem value=""></MenuItem>
-                                                {
-                                                    churchs &&
-                                                        churchs.map(
-                                                            church =>(
-                                                                <MenuItem value={church.id} key={church.id}>{church.name_church}</MenuItem>
-                                                            )
-                                                        )
-                                                }
-                                            </Select>
-                                        </FormControl>
-
-                                            
-                                        <Stack direction='row' justifyContent='flex-end' spacing={3} sx={{paddingTop:'1rem'}}>
-                                            <LoadingButton type="submit" loading={loadingButton}  variant='outlined'>Salvar</LoadingButton>
-                                            <Button color="error" onClick={()=>handleShowModal()} variant='outlined'>Cancelar</Button>
-                                        </Stack>
-                                    </Stack>
-                                </form>
-                            </Box>
-                        </ContainerBox>
-                    </ModalBox>
-
-                    {/* Gerador de QRCODE */}
-
-                    <ModalBox
-                        open={modalPrintQrcode}
-                        onClose={()=>handleCloseModalQrCode()}
-                    >
-                        <ContainerPrint >
-                            <ToolsPrint className='no-print'>
-                            <InputStart>
-                                <TextField  name='inicio' type="number" size='small' label="Iniciar a partir" value={positionPrint} onChange={(e)=>setPositionPrint(e.target.value)} inputProps={{min:0, max:9}}  fullWidth/>         
-                            </InputStart>
-                            <Print onClick={()=>window.print()}/>
-                            <Close onClick={()=>handleCloseModalQrCode()}/>
-                            </ToolsPrint>
-                            <SectionPrint className='print'>
-                                {
-                                    RenderListQrcode()
-                                }
-                            </SectionPrint>                   
-                        </ContainerPrint>
-
-                    </ModalBox>
-
-                    {/*Visualizado de Informaçoes do client */}
-
-                    <ModalBox
-                        open={modalViewClient}
-                        onClose={()=>setModalViewClient()}
-                    >
-                        <BoxModal
-                            titleModal={dataViewClient?.name_client ?? ''}
-                            handleClose={()=>setModalViewClient()}
-                        >
-                            <ViewClient client={dataViewClient} handleClose={setModalViewClient.bind()}/>
-                        </BoxModal>
-                    </ModalBox>
 
                 </Content>
 
             }
+            <ModalBox
+                open={modalNewClient}
+                onClose={()=>{}}
+            >
+                <ContainerBox>
+                    <HeaderBox>
+                        <h3>Novo Participantes</h3>                         
+                    </HeaderBox>
+                    <Box>
+                        <input type="hidden" name="id" value={formik.values.id}/>
+                        <form onSubmit={formik.handleSubmit}>
+                            <Stack spacing={2}>
+
+                                <FormControlLabel 
+                                    control={
+                                        <Checkbox name='shepherd' checked={isShepherd} onChange={handleSetIsShepherd}/>
+                                    } 
+                                    label="Participante é um pastor?" 
+                                    sx={{display:'flex', justifyContent:'flex-end', marginTop:"20px", }}
+                                />
+                                <TextField
+                                    name="name_client"
+                                    type="text"
+                                    label="Nome"
+                                    fullWidth
+                                    size='normal'
+                                    className="inputUser"
+                                    value={formik.values.name_client}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    helperText={formik.touched.name_client && formik.errors.name_client?formik.errors.name_client:''}
+                                    error={formik.touched.name_client && formik.errors.name_client}
+                                />
+
+                                <TextField
+                                    name="email"
+                                    type="email"
+                                    label="Email"
+                                    fullWidth
+                                    size='normal'
+                                    className="inputUser"
+                                    value={formik.values.email}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.email && formik.errors.email}
+                                    helperText={formik.touched.email && formik.errors.email?formik.errors.email:''}
+                                />
+
+                                <TextField
+                                    name="phone"
+                                    type="text"
+                                    label="Telefone"
+                                    fullWidth
+                                    size='normal'
+                                    className="inputUser"
+                                    value={formik.values.phone}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.phone && formik.errors.phone}
+                                    helperText={formik.touched.phone && formik.errors.phone?formik.errors.phone:''}
+                                />
+
+                                <FormControl fullWidth>
+                                    <InputLabel id="label-church">Igreja</InputLabel>
+                                    <Select
+                                        labelId='label-church'
+                                        label="Igreja"
+                                        name="id_church"
+                                        value={formik.values.id_church}
+                                        onChange={formik.handleChange}
+                                        error={formik.touched.id_church && formik.errors.id_church}
+                                        helperText={formik.touched.id_church && formik.errors.id_church?formik.errors.id_church:''}
+
+                                    >
+                                        <MenuItem value=""></MenuItem>
+                                        {
+                                            churchs &&
+                                                churchs.map(
+                                                    church =>(
+                                                        <MenuItem value={church.id} key={church.id}>{church.name_church}</MenuItem>
+                                                    )
+                                                )
+                                        }
+                                    </Select>
+                                </FormControl>
+
+                                    
+                                <Stack direction='row' justifyContent='flex-end' spacing={3} sx={{paddingTop:'1rem'}}>
+                                    <LoadingButton type="submit" loading={loadingButton}  variant='outlined'>Salvar</LoadingButton>
+                                    <Button color="error" onClick={()=>handleShowModal()} variant='outlined'>Cancelar</Button>
+                                </Stack>
+                            </Stack>
+                        </form>
+                    </Box>
+                </ContainerBox>
+            </ModalBox>
+
+            {/* Gerador de QRCODE */}
+
+            <ModalBox
+                open={modalPrintQrcode}
+                onClose={()=>handleCloseModalQrCode()}
+            >
+                <ContainerPrint >
+                    <ToolsPrint className='no-print'>
+                    <InputStart>
+                        <TextField  name='inicio' type="number" size='small' label="Iniciar a partir" value={positionPrint} onChange={(e)=>setPositionPrint(e.target.value)} inputProps={{min:0, max:9}}  fullWidth/>         
+                    </InputStart>
+                    <Print onClick={()=>window.print()}/>
+                    <Close onClick={()=>handleCloseModalQrCode()}/>
+                    </ToolsPrint>
+                    <SectionPrint className='print'>
+                        {
+                            RenderListQrcode()
+                        }
+                    </SectionPrint>                   
+                </ContainerPrint>
+
+            </ModalBox>
+
+            {/*Visualizado de Informaçoes do client */}
+
+            <ModalBox
+                open={modalViewClient}
+                onClose={()=>setModalViewClient()}
+            >
+                <BoxModal
+                    titleModal={dataViewClient?.name_client ?? ''}
+                    handleClose={()=>setModalViewClient()}
+                >
+                    <ViewClient 
+                        client={dataViewClient} 
+                        handleClose={setModalViewClient.bind()} 
+                        actions={actions} 
+                        updateViewUser={handleViewClient} 
+                        updateListPage = {getClients}
+                    />
+                </BoxModal>
+            </ModalBox>
+
 
             {
                 loading&&
