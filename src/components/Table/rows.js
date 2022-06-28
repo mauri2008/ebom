@@ -5,7 +5,7 @@ import { Stack, IconButton } from '@mui/material'
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
 
 
-const Row = ({record ,actions}) =>{
+const Row = ({record ,actions, endpoint}) =>{
     const keys  = Object.keys(record)
     const alterText = {
         yes:'Sim',
@@ -49,19 +49,19 @@ const Row = ({record ,actions}) =>{
                 <Stack direction='row' spacing={1}>
                     {
                         actions.handleView &&
-                            <IconButton color='primary' aria-label="Apresentar item" onClick={()=>actions.handleView(record?.id)}>
+                            <IconButton color='primary' aria-label="Apresentar item" onClick={()=>actions.handleView(record?.id, endpoint)}>
                                 <PresentToAllIcon />
                             </IconButton>
                     }
                     {
                         actions.handleUpdate &&
-                            <IconButton color='warning' aria-label='Editar item' onClick={()=>actions.handleUpdate(record?.id)} >
+                            <IconButton color='warning' aria-label='Editar item' onClick={()=>actions.handleUpdate(record?.id, endpoint)} >
                                 <Edit/>
                             </IconButton>
                     }
                     {
                         actions.handleDelete &&
-                            <IconButton color='error' aria-label="Remover item" onClick={()=>actions.handleDelete(record?.id)}>
+                            <IconButton color='error' aria-label="Remover item" onClick={()=>actions.handleDelete(record?.id, endpoint)}>
                                 <DeleteForever/>
                             </IconButton>
                     }
