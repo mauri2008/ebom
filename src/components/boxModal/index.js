@@ -10,11 +10,17 @@ import Close from '@mui/icons-material/Close'
 const  BoxModal= ({handleClose,titleModal ,children})=>{
     return (
         <Box sx={styleContainerModal}>
-            <CloseModal>
-                <Close onClick={()=>handleClose(false)}/>
-            </CloseModal>
+            {   handleClose &&
+                    <CloseModal>
+                        <Close onClick={()=>handleClose(false)}/>
+                    </CloseModal>
+
+            }
             <Box>
-                <h2 className="TitleModal" >{titleModal}</h2>
+                {
+                    titleModal &&
+                        <h2 className="TitleModal" >{titleModal}</h2>
+                }
                 {children}
             </Box>
         </Box>
