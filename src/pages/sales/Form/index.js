@@ -64,7 +64,6 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
                      setLoading(false)
                     return ''
             }
-                console.log(value)
                 successNotification(actions,'Ação registrada com sucesso!');
                 setLoading(false)
                 setCloseModal(false)
@@ -108,10 +107,11 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
                         disablePortal
                         name='id_client'
                         inputValue={ client.label }
-                        options={clients}
+                        options={clients??[]}
                         getOptionLabel={(option) => option.label || ''}
                         onChange={handleSetClient}
                         renderInput={(params)=> <TextField {...params} label="Participante"/>}
+                        disabled={clientURL}
                         required
                     />
                     <FormControl fullWidth>

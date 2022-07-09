@@ -11,15 +11,14 @@ import { successNotification } from '../../../helpes/notification';
 
 
 
-const Expenditure = ({handleClose, update})=>{
+const Expenditure = ({handleClose, update, setValueUpdate})=>{
     const api = UseApi();
     const {state, actions} = useContext(StateContext)
     const [loading, setLoading] = useState(false)
-
     const formik = useFormik({
         initialValues:{
             valuerecive:update?.value??'',
-            description:update?.decription??''
+            description:update?.description??''
         },
         validationSchema: recipeSchema,
         onSubmit: async (value)=>{
@@ -33,15 +32,14 @@ const Expenditure = ({handleClose, update})=>{
                 payload.id = update.id 
             }
 
-            const response = await update? api.update('expenses',payload, actions):api.insert('expenses',payload, actions)
+            const response = await update? api.update(`expenses/update/${update.id}`,payload, actions):api.insert('expenses',payload, actions)
             
             if(response.length === 0){          
                 setLoading(false)
-                console.log('Saiu antes de chamar noticficação')
                 return ''
             }
-            console.log('Chamou noticiação ')
             successNotification(actions,'Ação registrada com sucesso!');
+            setValueUpdate([])
             setLoading(false)
             handleClose(false)
 

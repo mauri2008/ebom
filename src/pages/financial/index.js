@@ -50,12 +50,48 @@ const Financial = ()=>{
     const [loading, setLoading] = useState(true);
     const [expenses, setExpenses] = useState([]);
     const [donations, setDonations] = useState([]);
+    const [dataUpdateDonations, setDataUpdateDonations] = useState(false)
+    const [dataUpdateExpenses, setDataUpdateExpenses] = useState(false)
     const [openModal, setOpenModal] = useState(false);
     const [controlForm, setControlForm] = useState('recipe')
     const [pagesExpenses, setPagesExpenses] = useState(0)
     const [pagesDonations, setPagesDonations] = useState(0);
     const [pageNowExpense, setPageNowExpense] =  useState(1);
     const [pageNowDonations, setPageNowDonations] =  useState(1);
+    const valuesCards = [
+        {
+            icon:PriceCheck,
+            title:'Titulos em Aberto',
+            subTitle:currencyFormat(valueInfo?.open_sale ?? 0),
+            color:'#ff9922'
+        },
+        {
+            icon:AccountCircle,
+            title:'Ingressos',
+            subTitle:currencyFormat(valueInfo?.close_sale ?? 0),
+            color:'#339933'
+        },
+        {
+            icon:MonetizationOn,
+            title:'Doações',
+            subTitle:currencyFormat(valueInfo?.donations ?? 0),
+            color:'#339933'
+        },
+        {
+            icon:CurrencyExchange,
+            title:'Despesas',
+            subTitle:currencyFormat(valueInfo?.expense ?? 0),
+            color:'#ff3333'
+        },
+        {
+            icon:PointOfSale,
+            title:'Saldo',
+            subTitle:currencyFormat(valueInfo?.balance ?? 0),
+            color:'#ff3333'
+        }
+
+
+    ]
 
     const getValues = async (url) =>{
         const response = await api.get(url, actions)
@@ -119,40 +155,42 @@ const Financial = ()=>{
          setLoading(false);
     }
 
-    const valuesCards = [
-        {
-            icon:PriceCheck,
-            title:'Titulos em Aberto',
-            subTitle:currencyFormat((valueInfo && valueInfo.open_sale) ?? 0),
-            color:'#ff9922'
-        },
-        {
-            icon:AccountCircle,
-            title:'Ingressos',
-            subTitle:currencyFormat((valueInfo && valueInfo.close_sale) ?? 0),
-            color:'#339933'
-        },
-        {
-            icon:MonetizationOn,
-            title:'Doações',
-            subTitle:currencyFormat((valueInfo && valueInfo.donations) ?? 0),
-            color:'#339933'
-        },
-        {
-            icon:CurrencyExchange,
-            title:'Despesas',
-            subTitle:currencyFormat((valueInfo && valueInfo.expense) ?? 0),
-            color:'#ff3333'
-        },
-        {
-            icon:PointOfSale,
-            title:'Saldo',
-            subTitle:currencyFormat((valueInfo && valueInfo.balance) ?? 0),
-            color:'#ff3333'
+    const handleDeleteItems = async (id, endpoint)=>{
+        setLoading(true)
+        const response = await api.delete(`${endpoint}/delete/${id}`, actions);
+        if(!response){
+            setLoading(false);
+            return false;
         }
 
+        successNotification(actions, 'Elemento removido com sucesso');
+        endpoint === 'expenses'? getListExtense():getListDonations()
+        setLoading(false)
 
-    ]
+    }
+
+    const handleGetDataUpdate = async (id, endpoint)=>{
+
+        const response = await api.get(`${endpoint}/search/${id}`, actions);
+        if(!response){
+            return '';
+        }
+
+        if(endpoint === 'expenses'){
+            setDataUpdateExpenses(response?.data)
+            handleOpenModal('expenditure')
+        }else{
+            setDataUpdateDonations(response?.data)
+            handleOpenModal('recipe')
+        }
+    }
+
+    const handleCloseModal = () =>{
+        setOpenModal(false)
+        setDataUpdateDonations(false)
+        setDataUpdateExpenses(false)
+
+    }
 
 
     const handleOpenModal = (form)=>{
@@ -161,8 +199,8 @@ const Financial = ()=>{
     }
 
     const setForms = {
-        recipe: <FormRecipe handleClose={setOpenModal.bind(false)}/>,
-        expenditure: <FormExpenditure handleClose={setOpenModal.bind(false)}/>
+        recipe: <FormRecipe handleClose={handleCloseModal} update={dataUpdateDonations} setValueUpdate={setDataUpdateDonations} />,
+        expenditure: <FormExpenditure handleClose={handleCloseModal} update={dataUpdateExpenses} setValueUpdate={setDataUpdateExpenses}/>
     }
 
     useEffect(()=>{
@@ -219,6 +257,9 @@ const Financial = ()=>{
                             countPagination={pagesExpenses}
                             page={pagesExpenses}
                             handlePagination={(event, value)=>setPageNowExpense(value)}
+                            endpoint='expenses'
+                            handleDelete={handleDeleteItems}
+                            handleUpdate={handleGetDataUpdate}
                         />
                     }
                     {
@@ -228,6 +269,7 @@ const Financial = ()=>{
                             </>
                     }
                 </ContentTable>
+
                 <ContentButtom>
                     <Button  onClick={()=>handleOpenModal('recipe')} ><Add /> Adicionar Receira </Button>
                 </ContentButtom>
@@ -245,6 +287,9 @@ const Financial = ()=>{
                             countPagination={pagesDonations}
                             page={pagesDonations}
                             handlePagination={(event, value)=>setPageNowExpense(value)}
+                            endpoint='donations'
+                            handleDelete={handleDeleteItems}
+                            handleUpdate={handleGetDataUpdate}
                         />
                     }
                         {

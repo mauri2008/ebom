@@ -11,33 +11,36 @@ import { successNotification } from '../../../helpes/notification';
 
 
 
-const Recipe = ({handleClose})=>{
+const Recipe = ({handleClose, update , setValueUpdate})=>{
     const api = UseApi();
     const {state, actions} = useContext(StateContext)
     const [loading, setLoading] = useState(false)
 
     const formik = useFormik({
         initialValues:{
-            valuerecive:'',
-            description:''
+            valuerecive:update?.value_dn??'',
+            description:update?.description_dn??''
         },
         validationSchema: recipeSchema,
         onSubmit: async (value)=>{
             setLoading(true)
-            const payload = {
+            let payload = {
                 value_dn:setMaxDataUpDataBase(value.valuerecive),
                 description_dn:value.description
             }
 
-            console.log(payload)
-            const response = await api.insert('donations',payload, actions)
-            if(Object.keys(response).length === 0){          
+            if(update?.id){
+                payload.id = update.id 
+            }
+
+            const response = await update? api.update(`donations/update/${update.id}`,payload, actions):api.insert('donations',payload, actions)
+            if(!response){ 
+                console.log('errro page')         
                 setLoading(false)
                 return ''
             }
             successNotification(actions,'Ação registrada com sucesso!');
-            setLoading(false)
-            handleClose(false)
+            handleClose()
 
         }
         

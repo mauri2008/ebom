@@ -26,6 +26,8 @@ import QRCode from 'react-qr-code'
 import Loading from '../../components/Loading'
 import BoxModal from '../../components/boxModal';
 import ViewClient from './view';
+import ConfirmNewSold from './modals/confirmNewSold';
+import FormSales from '../sales/Form';
 
 import { setDataTable, searchClient } from '../../helpes/functions'
 
@@ -61,6 +63,9 @@ export default function Clients(){
     const [modalNewClient, setModalNewClient ] = useState(false);
     const [modalPrintQrcode, setModalPrintQrcode] = useState(false)
     const [modalViewClient, setModalViewClient] = useState(false)
+    const [confimerNewSold, setConfimerNewSold] = useState(false)
+    const [modalSold, setModalSold] = useState(false)
+    const [dataClientSale, setDataClientSale] = useState([])
     const [positionPrint, setPositionPrint] = useState(0)
     const [countPages, setCountPages] = useState(0);
     const [pageNow, setPageNow] = useState(1);
@@ -182,11 +187,18 @@ export default function Clients(){
                 setLoadingButton(false)
                 return ''
             }
+
+            
             getClients()
             handleCleanForm()
             setLoadingButton(false);
-            successNotification(actions,'Cliente cadastrado com sucesso!');
+            successNotification(actions,'Participante cadastrado com sucesso!');
             setModalNewClient(false);
+            if(!update){
+                const {id , name_client} = insertClient.data
+                setDataClientSale({label:name_client, id});
+                setConfimerNewSold(true)
+            }
         }
     })
 
@@ -273,7 +285,10 @@ export default function Clients(){
         setModalViewClient(true)
     }
 
-
+    const handleOpenModalNewSold = () =>{
+        setConfimerNewSold(false)
+        setModalSold(true)
+    }
 
     useEffect(()=>{ RenderListQrcode() },[positionPrint])
     
@@ -479,7 +494,24 @@ export default function Clients(){
                     />
                 </BoxModal>
             </ModalBox>
+            
+            <ConfirmNewSold 
+                open={confimerNewSold}
+                onClose={setConfimerNewSold}
+                handleClick={handleOpenModalNewSold}
+            />
 
+            <ModalBox
+                open={modalSold}
+                onClose={setModalSold}
+            >
+                <BoxModal>
+                    <FormSales
+                        clientURL={dataClientSale}
+                        setCloseModal={setModalSold}
+                    />
+                </BoxModal>
+            </ModalBox>
 
             {
                 loading&&

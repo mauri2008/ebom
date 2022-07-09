@@ -14,7 +14,8 @@ const Table = (
         handleQrCode,
         countPagination,
         page,
-        handlePagination
+        handlePagination,
+        endpoint
     })=>{
 
     const blackList =[
@@ -38,13 +39,13 @@ const Table = (
                 <Head keys={keys} head={head} handleQrCode={handleQrCode}/>
                 <tbody>
                     {
-                        data.map(record => <Rows key={record.id} record={record}  actions={actions} />)
+                        data.map(record => <Rows key={record.id} record={record}  actions={actions} endpoint={endpoint}/>)
                     }
                 </tbody>
             </C.Table>
             {
                 countPagination &&
-                    <Pagination  count={countPagination} page={page} handleChange={handlePagination.bind(this)}/>
+                    <Pagination  count={countPagination} page={page} handleChange={handlePagination.bind(this)} />
             }
         </C.Container>
     );
