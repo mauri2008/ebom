@@ -3,6 +3,7 @@ import Edit from '@mui/icons-material/Edit'
 import { Link } from 'react-router-dom'
 import { Stack, IconButton } from '@mui/material'
 import PresentToAllIcon from '@mui/icons-material/PresentToAll';
+import FileDownload from '@mui/icons-material/FileDownload';
 
 
 const Row = ({record ,actions, endpoint}) =>{
@@ -45,13 +46,19 @@ const Row = ({record ,actions, endpoint}) =>{
 
             }
 
-            <td>
-                <Stack direction='row' spacing={1}>
+            <td style={{maxWidth:'5rem'}}>
+                <Stack direction='row' spacing={1} justifyContent='flex-end' sx={{paddingRight:'1.5rem'}}>
                     {
                         actions.handleView &&
                             <IconButton color='primary' aria-label="Apresentar item" onClick={()=>actions.handleView(record?.id, endpoint)}>
                                 <PresentToAllIcon />
                             </IconButton>
+                    }
+                    {
+                        (actions.handleDownPay && (record?.Pagante === 'yes' && record?.Pago === 'no')) &&
+                        <IconButton color='success' aria-label="baixar titulo" onClick={()=>actions.handleDownPay(record?.id, endpoint)}>
+                            <FileDownload/>
+                        </IconButton>
                     }
                     {
                         actions.handleUpdate &&
@@ -65,6 +72,7 @@ const Row = ({record ,actions, endpoint}) =>{
                                 <DeleteForever/>
                             </IconButton>
                     }
+
                 </Stack>
             </td>
         </tr>

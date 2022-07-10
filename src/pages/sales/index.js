@@ -20,8 +20,8 @@ import Loading from '../../components/Loading'
 import Add from '@mui/icons-material/Add';
 import FormSales from './Form'
 import BoxModal from '../../components/boxModal'
-
 import { handleDelete } from '../../services/actionsRest'
+import FormDownPay from '../../components/FormDownPay'
 
 import { 
     Container, 
@@ -46,6 +46,8 @@ export default function Sales(){
     const [validIdURL, setValidIdURL] = useState(true)
     const [clearForm, setClearForm] = useState(false)
     const [dataClienURL, setDataClientURL] = useState({label:'', id:''})
+    const [controlModal, setControlModal] = useState('create');
+    const [idPayDown, setIdPayDown] = useState('')
 
     const {state, actions} = useContext(StateContext)
 
@@ -100,7 +102,9 @@ export default function Sales(){
     }
     const handleShowModal = () => {
         setClearForm(true)
+        controlModal('create')
         setModalNewElement(!modalNewElement)
+
     }
 
     const handleDeleteElement = (id)=>{
@@ -133,6 +137,13 @@ export default function Sales(){
         }
     }
 
+    const handleDownPay = async (id) =>{
+        setIdPayDown(id)
+        setControlModal('downpay');
+        setModalNewElement(true)
+        
+    }
+
 
     const handlePagination= (event, value) => {     
         setPageNow(value)
@@ -151,6 +162,28 @@ export default function Sales(){
         }else{
             setDataClientURL({label:'', id:''})
         }
+    }
+
+    const modals = {
+        create:(<FormSales  
+                clients={clientData} 
+                clientUpdate={updateClient}
+                clientURL = {dataClienURL}
+                update={update}
+                setCloseModal={setModalNewElement.bind()}
+                setCleanForm={setClearForm.bind()}
+                cleanForm={clearForm}
+
+                />),
+        downpay:(<FormDownPay
+                    onClose={setModalNewElement}
+                    id={idPayDown}
+                    actions = {actions}
+
+                />)
+        
+            
+
     }
 
     useEffect(()=>{
@@ -209,6 +242,7 @@ export default function Sales(){
                                             countPagination={countPages}
                                             page={pageNow}
                                             handlePagination={handlePagination.bind(this)}
+                                            handleDownPay={handleDownPay}
                                         />
                                     </div>
                             }
@@ -220,17 +254,8 @@ export default function Sales(){
                         <Modal
                             open={modalNewElement}
                         >
-                            <BoxModal titleModal='Adicionar partipante' handleClose={()=>setModalNewElement.bind()}>
-                                <FormSales  
-                                    clients={clientData} 
-                                    clientUpdate={updateClient}
-                                    clientURL = {dataClienURL}
-                                    update={update}
-                                    setCloseModal={setModalNewElement.bind()}
-                                    setCleanForm={setClearForm.bind()}
-                                    cleanForm={clearForm}
-
-                                />
+                            <BoxModal titleModal={controlModal ==='create'? 'Adicionar Compra ':'Baixar compra'} handleClose={()=>setModalNewElement.bind()}>
+                                {modals[controlModal]}                                
                             </BoxModal>
                         </Modal>
                     </>
