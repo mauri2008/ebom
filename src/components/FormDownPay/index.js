@@ -30,8 +30,12 @@ const FormDownPay = ({ onClose, id, actions, updateViewUser, idClient, updateLis
 
                 successNotification(actions,'Ação registrada com sucesso!');
                 setLoading(false)
-                updateViewUser(idClient)
-                updateListView()
+                if(updateViewUser ){
+                    updateViewUser(idClient)
+                }
+                if(updateListView){
+                    updateListView()
+                }
                 handleClose()
 
             }

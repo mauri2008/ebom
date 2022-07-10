@@ -12,6 +12,7 @@ const Table = (
         handleUpdate, 
         handleView, 
         handleQrCode,
+        handleDownPay,
         countPagination,
         page,
         handlePagination,
@@ -30,7 +31,8 @@ const Table = (
         handleDelete:handleDelete, 
         handleUpdate:handleUpdate,
         handleView:handleView, 
-        handleQrCode:handleQrCode
+        handleQrCode:handleQrCode,
+        handleDownPay:handleDownPay
     }
 
     return(
