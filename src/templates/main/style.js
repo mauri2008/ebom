@@ -27,8 +27,10 @@ export const Content = styled.section`
     box-sizing: border-box;
 `
 export const Logo = styled.img`
-    width: 250px;
-    margin:10px;
+    width: 150px;
+    height:50px;
+    margin-top:35px;
+    margin-left:20px;
 `
 
 export const Nav = styled.nav`
