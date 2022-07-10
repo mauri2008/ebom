@@ -78,7 +78,7 @@ export default function Main({children}){
 
             <Aside>
                 <div>
-                    <Logo src='https://d2r9epyceweg5n.cloudfront.net/assets/insti/img/json-ld-nuvemshop.png'  alt="Logo Tipo Ebom 2020"/>
+                    <Logo src='http://localhost:8000/img/logo-ebom-rbg.png'  alt="Logo Tipo Ebom 2020"/>
                     <Nav>
                         
                         <ul>
