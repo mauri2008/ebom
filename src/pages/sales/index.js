@@ -102,7 +102,7 @@ export default function Sales(){
     }
     const handleShowModal = () => {
         setClearForm(true)
-        controlModal('create')
+        setControlModal('create')
         setModalNewElement(!modalNewElement)
 
     }
@@ -150,7 +150,6 @@ export default function Sales(){
     }
 
     const getdataClientURL = async()=>{
-        console.log(`Chamada ${paramsURL?.idclient}`)
         if(validIdURL && paramsURL?.idclient){
             console.log('teste')
             const dataClient = await searchClient({api,ENDPOINT:'clients',search:{searchid:paramsURL.idclient}})
@@ -160,7 +159,7 @@ export default function Sales(){
             setModalNewElement(true)
             setValidIdURL(false)
         }else{
-            setDataClientURL({label:'', id:''})
+            setDataClientURL(false)
         }
     }
 

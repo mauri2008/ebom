@@ -1,5 +1,5 @@
 import {AlertError} from './alertError';
-const BASEAPI = "http://127.0.0.1:8000/api/";
+const BASEAPI = "https://www.adisetoritapevi.com.br/apiebom/api/";
 
 
 const apiFetch = async (endpoint, body, method, actions) =>{

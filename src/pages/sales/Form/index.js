@@ -162,6 +162,7 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
                                         >
                                             <MenuItem value="dinheiro">Dinheiro</MenuItem>
                                             <MenuItem value="cartão">Cartão</MenuItem>
+                                            <MenuItem value="pix">Pix</MenuItem>
                                         </Select>
                                     </FormControl>
 
