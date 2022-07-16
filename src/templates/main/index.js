@@ -78,7 +78,7 @@ export default function Main({children}){
 
             <Aside>
                 <div>
-                    <Logo src='http://localhost:8000/img/logo-ebom-rbg.png'  alt="Logo Tipo Ebom 2020"/>
+                    <Logo src='https://www.adisetoritapevi.com.br/apiebom/img/logo-ebom-rbg.png'  alt="Logo Tipo Ebom 2020"/>
                     <Nav>
                         
                         <ul>

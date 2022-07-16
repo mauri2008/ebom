@@ -10,7 +10,7 @@ function App() {
 
  
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/ebom2022">
       <GlobalStyle/>
       <Context>
         <Routes/>
