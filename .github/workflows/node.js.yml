@@ -34,4 +34,5 @@ jobs:
         server: ${{ secrets.SERVE_FTP }}
         username: ${{ secrets.USER_NAME_FTP }}
         password: ${{ secrets.PASSWORD_FTP }}
+        local-dir: build/
         server-dir: public_html/ebom2022/
