@@ -14,6 +14,7 @@
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.27.2",
     "chart.js": "^3.7.1",
     "date-fns": "^2.28.0",
     "formik": "^2.2.9",
@@ -32,7 +33,7 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=5000 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -56,6 +57,8 @@
     ]
   },
   "devDependencies": {
-    "chance": "^1.1.8"
+    "chance": "^1.1.8",
+    "laravel-echo": "^1.13.0",
+    "pusher-js": "^7.3.0"
   }
 }

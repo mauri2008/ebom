@@ -1,15 +1,14 @@
 import React from 'react';
 import { Container, IconLoading } from './style';
 import imgLoading from '../../assets/images/loading-group.gif'
+import { CircularProgress } from '@mui/material';
 
 
 export default function Loading(){
 
     return(
         <Container>
-            <IconLoading>
-                <img src={imgLoading} alt="Imagem de loading"/>
-            </IconLoading>
+            <CircularProgress/>
             <h3>Carregando...</h3>
         </Container>
     )

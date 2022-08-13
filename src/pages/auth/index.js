@@ -56,7 +56,7 @@ export default function Auth (){
             }
 
             sessionStorage.setItem('token',requisitionLogin.token);
-            sessionStorage.setItem('user',JSON.stringify({name: requisitionLogin.name, email: requisitionLogin.email})) 
+            sessionStorage.setItem('user',JSON.stringify({id:requisitionLogin.id, name: requisitionLogin.name, email: requisitionLogin.email})) 
             actions.setUser({
                 name:requisitionLogin.name,
                 email:requisitionLogin.email,
