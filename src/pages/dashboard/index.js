@@ -124,11 +124,11 @@ export default function Dashboard(){
 
         let PusherClient = new Pusher("62e84dc40e506", {
           cluster: "mt1",
-          wsHost: "localhost",
+          wsHost: "adisetoritapevi.com.br",
           wsPort: "6001",
-          enabledTransports: ["ws", "wss"],
-          forceTLS: false,
-          encrypted: false,
+        //   enabledTransports: ["ws", "wss"],
+          forceTLS: true,
+          encrypted: true,
 
         });
     
