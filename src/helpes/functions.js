@@ -19,8 +19,8 @@ export function setDataTable (elements, keys) {
 
     let list = [];
     let obj ={}
-    elements.map((element)=>{
-        keys.map(key =>{
+    elements.forEach((element)=>{
+        keys.forEach(key =>{
             obj[key.title] = element[key.key]
             return''
         })
@@ -35,11 +35,16 @@ export function setDateBr (date) {
     return format(date, 'dd/MM/yyyy')
 }
 
+export function setDateTimeBr (date) {
+    return format(date, 'dd/MM/yyyy hh:mm')
+}
+
 export const convertDateNotUtcInBR = (data) =>{
     return setDateBr(parseISO(data))
 }
 
-export function updateLabelDateInBr (array, element){
+export function updateLabelDateInBr (data, element){
+    const array = data;
     array.map((data, index)=>{
 
         array[index][element] = setDateBr(parseISO(data[element]))
@@ -52,11 +57,14 @@ export function updateLabelDateInBr (array, element){
 export function updateDataGrid(values, elements){
     let array = values
 
-    elements.map(element=>{
-        array.map((data, index)=>{
+    elements.forEach(element=>{
+        array.forEach((data, index)=>{
 
             if(element.action === 'data'){
                 array[index][element.object] = setDateBr(parseISO(data[element.object]))
+            }
+            if(element.action === 'dateTime'){
+                array[index][element.object] = setDateTimeBr(parseISO(data[element.object]))
             }
             if(element.action === 'current'){
                 array[index][element.object] = `R$ ${maskValueCurrency(data[element.object])}`

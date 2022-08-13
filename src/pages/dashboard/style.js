@@ -23,36 +23,82 @@ export const StatusHeader = styled.div`
 `;
 
 export const SectionCharts = styled.section`
-    display:flex;
-    justify-content: space-between ;
     width:100% ;
-
+    display:grid;
+    grid-template-columns: 80% 20% ;
+    grid-gap: 0.3rem ;
     border: 0px;
     padding:0px ;
     box-sizing:border-box ;
 `
+export const TitleCharts = styled.h4`
+    margin-bottom: 28px ;
+`
+export const DescriptionCharts = styled.div`
+    margin-top :15px ;
+`
+
+export const ItemDescriptionCharts = styled.div`
+    display:flex;
+    align-items: center ;
+
+`
+export const ColorDescriptionCharts = styled.div`
+    width:12px ;
+    height:12px ;
+    background-color:${props=> props.color} ;
+    border-radius:50% ;
+    margin-right: 5px ;
+`
+
 export const SectionLeftCharts = styled.div`
-    width:80% ;
-    max-height:173px ;
+    width:100% ;
     box-sizing: border-box ;
     margin-right: 10px;
+    border-radius: 15px ;
+    padding: 1.3rem;
+    border: 1px solid #c3c3c3;
     .titleCharts{
         margin:0px;
         padding:0px ;
     }
 ` 
 export const SectionRightCharts = styled.div`
-    width:25% ;
+    width:100% ;
     box-sizing: border-box ;
+    padding: 1.3rem;
+    border-radius: 15px ;
+    border: 1px solid #c3c3c3;
 
 `
 export const SectionTableEntrace = styled(Paper)`
     width: 100%;
-    height:300px ;
     margin:30px 0px;
     box-sizing:border-box;
     padding:20px;
+    display:block ;
+    position:relative ;
+`
+
+export const TablePresents = styled.div`
+    flex:1 ;
+    height: 200px ;
+    padding-bottom:20px ;
     overflow:auto ;
     scrollbar-width:thin;
 
+`
+
+export const TitlePresents = styled.div`
+    display:flex; 
+    justify-content:space-between;
+    align-items:center;
+    padding-bottom:20px ;
+`
+
+export const EmptyClientsPresents = styled.div`
+    height:100% ;
+    display: flex ;
+    align-items:center ;
+    justify-content: center;
 `
