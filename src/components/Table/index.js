@@ -41,7 +41,7 @@ const Table = (
                 <Head keys={keys} head={head} handleQrCode={handleQrCode}/>
                 <tbody>
                     {
-                        data.map(record => <Rows key={record.id} record={record}  actions={actions} endpoint={endpoint}/>)
+                        data.map((record, index )=> <Rows key={`row-${index}`} record={record}  actions={actions} endpoint={endpoint}/>)
                     }
                 </tbody>
             </C.Table>

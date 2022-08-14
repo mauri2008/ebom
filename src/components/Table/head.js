@@ -4,7 +4,7 @@ const Head = ({keys, head, handleQrCode}) => {
         <thead>
             <tr>
                 { handleQrCode && <th></th>}
-                {keys.map(key=><th key={key}>{tableHead[key] || key}</th>)}
+                {keys.map((key, index)=><th key={`th-${key}-${index}`}>{tableHead[key] || key}</th>)}
             </tr>
         </thead>
     )
