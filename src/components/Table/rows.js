@@ -34,12 +34,12 @@ const Row = ({record ,actions, endpoint}) =>{
                 </td>
             }
             {
-                keys.map(key => {
+                keys.map((key, index) => {
                     if(key ==='tumber'){
-                        return <td key={key}><img src={record[key]} alt='Tumber'/></td>
+                        return <td key={`${key}-${index}-1`}><img src={record[key]} alt='Tumber'/></td>
                     }else{
                         if(key !=='paidout'){
-                            return <td key={key}>{validtext(record[key])}</td>
+                            return <td key={`${key}-${index}-2`}>{validtext(record[key])}</td>
                         }
                     }
                 })

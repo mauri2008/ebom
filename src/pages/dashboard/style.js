@@ -37,20 +37,6 @@ export const TitleCharts = styled.h4`
 export const DescriptionCharts = styled.div`
     margin-top :15px ;
 `
-
-export const ItemDescriptionCharts = styled.div`
-    display:flex;
-    align-items: center ;
-
-`
-export const ColorDescriptionCharts = styled.div`
-    width:12px ;
-    height:12px ;
-    background-color:${props=> props.color} ;
-    border-radius:50% ;
-    margin-right: 5px ;
-`
-
 export const SectionLeftCharts = styled.div`
     width:100% ;
     box-sizing: border-box ;

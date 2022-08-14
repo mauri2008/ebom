@@ -50,23 +50,16 @@ const  Charts = ({ dataCharts }) =>{
           },
       },
     };
-  
 
-    const labels = [];
-    const data = [];
-    dataCharts.forEach(element => {
-      let exploseDate = element.date_open.split('-')
-      labels.push(exploseDate.length>0?format(new Date(exploseDate[0],exploseDate[1],exploseDate[2]), 'dd/MM/yyy'):'');
-      data.push(element.total);
-    });
-    // const chance = Chance()
-  
     const dataLine = {
-      labels,
+      labels:dataCharts.map(label=>{
+        let exploseDate = label.date_open.split('-')
+        return format(new Date(exploseDate[0],exploseDate[1],exploseDate[2]), 'dd/MM/yyy') }
+      ),
       datasets: [
           {
           label: 'Dataset 1',
-          data,
+          data:dataCharts.map(data=>data.total),
           borderColor: 'rgb(255, 99, 132)',
           backgroundColor: 'rgba(255, 99, 132, 0.5)',
           }

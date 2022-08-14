@@ -1,5 +1,4 @@
 import { useState, useEffect, useContext } from "react";
-import { parseISO } from 'date-fns'
 import { 
     Container, 
     StatusHeader, 
@@ -9,8 +8,6 @@ import {
     SectionTableEntrace,
     TitleCharts,
     DescriptionCharts,
-    ItemDescriptionCharts,
-    ColorDescriptionCharts,
     TablePresents,
     TitlePresents,
     EmptyClientsPresents
@@ -31,11 +28,8 @@ import ChartsDoughnut from '../../components/chartsDoughnut'
 
 import UseApi from '../../services/api'
 import { StateContext } from '../../context';
-import { setDataTable, updateDataGrid, setDateTimeBr } from '../../helpes/functions'
-import Loading from "../../components/Loading";
+import { setDataTable, updateDataGrid } from '../../helpes/functions'
 
-import Echo from 'laravel-echo'
-import Pusher from 'pusher-js';
 
 
 
@@ -47,13 +41,6 @@ export default function Dashboard(){
     const {actions} = useContext(StateContext);
     const [checkins, setCheckins] = useState([]);
     const [reports, setReports] = useState({});
-    const [doughnutData, setDoughnutData] = useState([
-        {name:'Ausentes', color:'rgba(255, 99, 132, 1)', value:0},
-        {name:'Presentes', color:'rgba(54, 162, 235, 1)', value:0},
-        {name:'Isentos Presente', color:'rgba(3, 187, 133, 1)', value:0},
-    ])
-    const [lineData, setLineData] = useState([])
-
     
 
     const convertDataTable = ( data ) => {
@@ -76,86 +63,31 @@ export default function Dashboard(){
         return convertDataCheckins
     }
 
-    const setValueCharts = (reports) =>{
-
-        const reportsDougnut= [
-            {name:'Ausentes', color:'rgba(255, 99, 132, 1)', value:reports.totalAbserts},
-            {name:'Presentes', color:'rgba(54, 162, 235, 1)', value:reports.present},
-            {name:'Isentos Presente', color:'rgba(3, 187, 133, 1)', value:reports.notPaying},
-        ]
-        
-        console.log(reports)
-
-        setDoughnutData(reportsDougnut);
-        reports?.presentsDay && setLineData(reports.presentsDay);
-    }
 
 
     const getCheckins = async ( page ) => {
          
-        const response = await api.get(`checkin/${page??0}`,actions);
+        const response = await api.get(`checkin/updatelist`,actions);
 
-        if(Object.keys(response.data).length > 0){ 
+        if(Object.keys(response).length > 0){ 
 
-            dataCheckins = convertDate(response.data);
-            convertDataTable(response.data);
+            dataCheckins = convertDate(response.client);
+            convertDataTable(response.client);          
+            setReports(response.reports);
         }   
-    }
-
-    const getReports = async () => {
-
-        const response = await api.get('checkin/reports', actions);
-        setReports(response);
-        setValueCharts(response)
-        
-    }
-
-
-    const addClientListPresents = ( client )=>{
-
-        dataCheckins.unshift( client );
-        convertDataTable( dataCheckins )
-    }
-
-
-
-    async function listenMessages() {
-        window.Pusher = Pusher;
-
-        let PusherClient = new Pusher("62e84dc40e506", {
-          cluster: "mt1",
-          wsHost: "localhost",
-          wsPort: "6001",
-          enabledTransports: ["ws", "wss"],
-          forceTLS: false,
-          encrypted: false,
-
-        });
-    
-        let echo = new Echo({
-          broadcaster: "pusher",
-          client: PusherClient,
-        });
-    
-        echo.channel(`chat`).listen(".App\\Events\\SendMessage", (e) => {
-            console.log(e)
-            if(e.message?.client){
-                const newClient = e.message.client;
-                newClient.data_checkin = setDateTimeBr(parseISO(newClient.data_checkin))
-                addClientListPresents(newClient)
-                setReports(e.message.reports)
-                setValueCharts(e.message?.reports);
-            }
-
-        });
     }
 
     useEffect(()=>{
         getCheckins()
-        getReports()
-        listenMessages()
     },[])
   
+    useEffect(() => {
+        const timer = setInterval(() => {
+            getCheckins()
+        },15000);
+        return () => clearTimeout(timer);
+      }, []);
+
     return (
         <Container>
             <Header 
@@ -178,26 +110,17 @@ export default function Dashboard(){
                 <SectionLeftCharts>
                     <TitleCharts>Presenças diárias</TitleCharts>
                     {
-                        lineData.length >0 &&
-                            <Charts dataCharts={lineData}/>
-                    }
-                    {
-                        lineData.length === 0 &&
-                            <Loading/>
+                        reports && reports?.presentsDay &&
+                           <Charts dataCharts={reports.presentsDay}/>
                     }
                 </SectionLeftCharts>
                 <SectionRightCharts>
                     <TitleCharts>Média de presenças</TitleCharts>
-                    <ChartsDoughnut dataChart={doughnutData}/>
-                    <DescriptionCharts>
                         {
-                            doughnutData.map((description,index) =>(
-                                <ItemDescriptionCharts key={`${description.name}-${index}`}>
-                                    <ColorDescriptionCharts color={description.color}></ColorDescriptionCharts>
-                                    <p>{description.name}</p>
-                                </ItemDescriptionCharts>
-                            ))
+                            reports && reports?.presentsDay &&
+                              <ChartsDoughnut dataChart={reports}/>
                         }
+                    <DescriptionCharts>
                     </DescriptionCharts>
                 </SectionRightCharts>
             </SectionCharts>
