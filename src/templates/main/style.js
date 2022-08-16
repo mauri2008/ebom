@@ -27,10 +27,8 @@ export const Content = styled.section`
     box-sizing: border-box;
 `
 export const Logo = styled.img`
-    width: 150px;
-    height:50px;
-    margin-top:35px;
-    margin-left:20px;
+    width: 80px;
+
 `
 
 export const Nav = styled.nav`
@@ -62,6 +60,8 @@ export const Nav = styled.nav`
             }
 
             a:hover{
+                font-size: 16px ;
+                transition: all 0.5s ease ;
                 background: var(--bs-gray-400) ;
             }
 
@@ -111,6 +111,7 @@ export const ListOPtions = styled.div`
     background:var(--bs-gray-400);
     left:100%;
     bottom:0px;
+    z-index:9999999;
 
     ul{
         padding:0;
@@ -133,6 +134,20 @@ export const ListOPtions = styled.div`
                 background: var(--bs-gray-500) ;
             }
         }
+    }
+`
+
+export const LogoType = styled.div`
+    display : flex ;
+    align-items:center ;
+    padding:0px 20px;
+    margin-top:15px ;
+    border-bottom:1px solid #c3c3c3;
+
+    p{
+        font-weight: bold ;
+        font-size:20px ;
+
     }
 `
 

@@ -5,12 +5,12 @@ import {
     SectionCharts,
     SectionLeftCharts,
     SectionRightCharts,
-    SectionTableEntrace,
     TitleCharts,
     DescriptionCharts,
     TablePresents,
     TitlePresents,
-    EmptyClientsPresents
+    EmptyClientsPresents,
+    ContainerTablePresents
 } from './style'
 
 import Header from  '../../components/header'
@@ -67,10 +67,9 @@ export default function Dashboard(){
 
     const getCheckins = async ( page ) => {
          
-        const response = await api.get(`checkin/updatelist`,actions);
+        const response = await api.get(`checkin-list`,actions);
 
         if(Object.keys(response).length > 0){ 
-
             dataCheckins = convertDate(response.client);
             convertDataTable(response.client);          
             setReports(response.reports);
@@ -125,7 +124,7 @@ export default function Dashboard(){
                 </SectionRightCharts>
             </SectionCharts>
 
-            <SectionTableEntrace elevation={2}>
+            <ContainerTablePresents elevation={2} sx={{position:"relative"}}>
                 <TitlePresents>
                     <p>
                         Lista de Presença
@@ -148,7 +147,7 @@ export default function Dashboard(){
 
                     }
                 </TablePresents>       
-            </SectionTableEntrace>
+            </ContainerTablePresents>
 
         </Container>
     )

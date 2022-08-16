@@ -74,12 +74,19 @@ export const TablePresents = styled.div`
     scrollbar-width:thin;
 
 `
-
+export const ContainerTablePresents = styled.section`
+    border:1px solid #c3c3c3;
+    margin: 20px 0px;
+    box-sizing: border-box ;
+    padding: 20px;
+    border-radius: 20px;
+`
 export const TitlePresents = styled.div`
     display:flex; 
     justify-content:space-between;
     align-items:center;
     padding-bottom:20px ;
+    border-bottom:1px solid #e4e4e4;
 `
 
 export const EmptyClientsPresents = styled.div`
@@ -88,3 +95,4 @@ export const EmptyClientsPresents = styled.div`
     align-items:center ;
     justify-content: center;
 `
+
