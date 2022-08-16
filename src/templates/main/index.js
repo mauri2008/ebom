@@ -5,26 +5,22 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { 
     Container, 
-    Nav, 
     Aside,
     Content, 
     Logo,
     Footer,
     Identifier,
     MoreOptions,
-    ListOPtions
+    ListOPtions,
+    LogoType 
 } from './style';
 
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
-import CalculateIcon from '@mui/icons-material/Calculate';
-import FactCheckIcon from '@mui/icons-material/FactCheck';
+import Menu from './menu';
+
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import Person from '@mui/icons-material/Person';
-import AssignmentInd  from '@mui/icons-material/AssignmentInd';
-import Church from '@mui/icons-material/Church';
+import logoSystem from '../../assets/images/logo-rbg.png'
 
 import Loading from '../../components/Loading'
 
@@ -69,6 +65,7 @@ export default function Main({children}){
         setMore(false)
     },[children])
 
+
     return(
         <Container>
                 {
@@ -78,76 +75,12 @@ export default function Main({children}){
 
             <Aside>
                 <div>
-                    <Logo src='https://www.adisetoritapevi.com.br/apiebom/img/logo-ebom-rbg.png'  alt="Logo Tipo Ebom 2020"/>
-                    <Nav>
-                        
-                        <ul>
-                            <li>
-                                <NavLink 
-                                    to="/dashboard"
-                                >
-                                <DashboardIcon/>
-                                Dashboard
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/participantes"
-                                    className={isActive =>`${isActive ? 'select':''}`}
-                                >
-                                <AssignmentInd/>  
-                                Participantes
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/compras"
-                                    className={isActive =>`${isActive ? 'select':''}`}
-                                >
-                                <LoyaltyIcon/>  
-                                Compras
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/igrejas"
-                                    className={isActive =>`${isActive ? 'select':''}`}
-                                >
-                                <Church/>  
-                                Igrejas
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/financeiro"
-                                    className={isActive =>`${isActive ? 'select':''}`}
-                                >
-                                <CalculateIcon/>  
-                                Financeiro
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/relatorios"
-                                    className={isActive =>`${isActive ? 'select':''}`}
-                                >
-                                <FactCheckIcon/>  
-                                Relatórios
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink 
-                                    to="/usuarios"
-                                    className={isActive =>`${isActive ? 'select':''}`}
-                                >
-                                <Person/>  
-                                Usuários
-                                </NavLink>
-                            </li>
+                    <LogoType>
+                        <Logo src={logoSystem}  alt="Logo Tipo controlpass"/>
+                        <p>ControlPass</p>
+                    </LogoType>
 
-
-                        </ul>
-                    </Nav>               
+                    <Menu/>
                 </div>
                 <Footer>
                     <Identifier>

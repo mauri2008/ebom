@@ -74,8 +74,8 @@ export default function Auth (){
             <Section>
                 <Aside>
                     
-                    <h1>Ebom 2022</h1>
-                    <small>Escola biblica Obreiros e Membros</small>
+                    <h1>ControlPass</h1>
+                    <small>Sistema de controle de acesso</small>
                     <img src={logo} alt="Logo tipo "/>
                 </Aside>
                 <Main>
