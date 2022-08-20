@@ -236,7 +236,6 @@ export default function Sales(){
                                     <div>
                                         <Table
                                             data={listData}                                           
-                                            handleUpdate={handleShowUpdate.bind(this)}
                                             handleDelete={handleDeleteElement.bind(this)}
                                             countPagination={countPages}
                                             page={pageNow}
