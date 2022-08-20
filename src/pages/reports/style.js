@@ -25,4 +25,11 @@ export const AsideRight = styled.aside`
     padding: 10px 60px;
     border-left: 1px solid #c3c3c3 ;
 `
+export const HeaderViewOptionsReports = styled.header`
+    display:flex;
+    justify-content: flex-end ;
+    svg {
+        cursor: pointer;
+    }
 
+`

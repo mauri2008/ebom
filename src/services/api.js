@@ -1,8 +1,6 @@
 import {AlertError} from './alertError';
-const BASEAPI = "https://apiebom.adisetoritapevi.com.br/api/";
-// const BASEAPI = "http://127.0.0.1:8000/api/";
-
-
+import { paramsSystem } from '../helpes/paramsSystem';
+ 
 const apiFetch = async (endpoint, body, method, actions) =>{
         
     try{
@@ -22,7 +20,7 @@ const apiFetch = async (endpoint, body, method, actions) =>{
           params.body = JSON.stringify(body)
         }
 
-        const res= await fetch(BASEAPI+endpoint,params)
+        const res= await fetch(paramsSystem.URLBASE+endpoint,params)
 
         const responseStatus = {
           200: await res.json(),
@@ -48,7 +46,7 @@ const apiFetch = async (endpoint, body, method, actions) =>{
 
 const apiFetchLogin = async(endpoint, body)=>{
     try{
-      const res = await fetch(BASEAPI+endpoint,{
+      const res = await fetch(paramsSystem.URLBASE+endpoint,{
         method: 'POST',
         headers:{
           'Accept': 'application/json',
