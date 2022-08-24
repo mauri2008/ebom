@@ -51,25 +51,26 @@ export default function Clients(){
 
     const ENDPOINT = 'clients';
 
-    const [listClient, setlistClients] = useState(false);
-    const [countClient, setCountClient] = useState(0);
-    const [churchs, setChurchs] = useState([])
-    const [loading, setLoading] = useState(true);
-    const [loadingButton, setLoadingButton] = useState(false);
-    const [headerTable, setHeaderTable] = useState(false);
-    const [isShepherd, setIsShepherd] = useState(false);
-    const [update, setUpdate] = useState(false);
-    const [idCodesSelect, setIdCodesSelect] = useState([])
-    const [modalNewClient, setModalNewClient ] = useState(false);
-    const [modalPrintQrcode, setModalPrintQrcode] = useState(false)
-    const [modalViewClient, setModalViewClient] = useState(false)
-    const [confimerNewSold, setConfimerNewSold] = useState(false)
-    const [modalSold, setModalSold] = useState(false)
-    const [dataClientSale, setDataClientSale] = useState([])
-    const [positionPrint, setPositionPrint] = useState(0)
-    const [countPages, setCountPages] = useState(0);
-    const [pageNow, setPageNow] = useState(1);
-    const [dataViewClient, setDataViewClient] = useState({})
+    const [ listClient, setlistClients] = useState(false);
+    const [ countClient, setCountClient] = useState(0);
+    const [ churchs, setChurchs] = useState([])
+    const [ loading, setLoading] = useState(true);
+    const [ loadingButton, setLoadingButton] = useState(false);
+    const [ headerTable, setHeaderTable] = useState(false);
+    const [ isShepherd, setIsShepherd] = useState(false);
+    const [ update, setUpdate] = useState(false);
+    const [ idCodesSelect, setIdCodesSelect] = useState([])
+    const [ modalNewClient, setModalNewClient ] = useState(false);
+    const [ modalPrintQrcode, setModalPrintQrcode] = useState(false)
+    const [ modalViewClient, setModalViewClient] = useState(false)
+    const [ confimerNewSold, setConfimerNewSold] = useState(false)
+    const [ modalSold, setModalSold] = useState(false)
+    const [ dataClientSale, setDataClientSale] = useState([])
+    const [ positionPrint, setPositionPrint] = useState(0)
+    const [ countPages, setCountPages] = useState(0);
+    const [ pageNow, setPageNow] = useState(1);
+    const [ dataViewClient, setDataViewClient] = useState({})
+    const [ search, setSearch ] = useState('');
     
     const {state, actions} = useContext(StateContext)
     const api = UseApi();
@@ -91,11 +92,18 @@ export default function Clients(){
             setLoading(false)
             return ''
         }
+        const alterLabelPay = response.data.map(client =>(
+            {...client, 
+                paying_sale: client.paying_sale==='no'?'Sim':'Não', 
+                paid_sale:client.paid_sale==='yes'?'Sim':'Não'
+            }
+        ))
 
-        setlistClients(setDataTable(response.data,
+        setlistClients(setDataTable(alterLabelPay,
             [            
                 {key:'id', title:'id'},
                 {key:'name_client', title:'Nome'},
+                {key:'paying_sale', title:'Isento'},
                 {key:'email', title:'Email'},
                 {key:'phone', title:'Telefone'},
                 {key:'name_church', title:'Igreja'},
@@ -104,7 +112,7 @@ export default function Clients(){
             ))
 
         setCountPages(response.pages)
-        setCountClient(response.totalClients ?? Object.keys(response.data.length))
+        setCountClient(response.total ?? 0)
         setLoading(false);       
     }
 
@@ -320,6 +328,8 @@ export default function Clients(){
                                 type="text"
                                 label="Pesquisar"
                                 size='small'
+                                value={search}
+                                onChange={(e)=> setSearch(e.target.value)}
                                 onKeyUp={(e)=> handleSearch(e)}
                             />
                         </div>
