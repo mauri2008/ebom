@@ -34,7 +34,7 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
         id:update?.id??'',
         paid_sale:update?.paid_sale?? "", 
         paying_sale: update?.paying_sale ?? "",
-        value_sale: "50.00",
+        value_sale: "40.00",
         form_of_payment: update?.form_of_payment??"",
         note: update?.note??''
     }
@@ -44,7 +44,7 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
             id:'',
             paid_sale: "", 
             paying_sale:"",
-            value_sale: "50.00",
+            value_sale: "40.00",
             form_of_payment: "",
             note: ''
         })
@@ -175,7 +175,7 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
                                 fullWidth
                                 size='normal'
                                 className="inputUser"
-                                value='50.00'
+                                value='40.00'
                                 onBlur={formik.handleBlur}
                                 onChange={formik.handleChange}
                                 disabled
