@@ -60,6 +60,7 @@ export const ReportChurchs = () => {
                                         value={selectOption}
                                         onChange={(e) => setSelectOption(e.target.value)}
                                     >
+                                        <MenuItem value='all'>Todas</MenuItem>
                                         {
                                             churchs &&
                                             churchs.map(church => (
