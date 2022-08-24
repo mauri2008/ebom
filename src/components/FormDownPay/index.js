@@ -77,7 +77,7 @@ const FormDownPay = ({ onClose, id, actions, updateViewUser, idClient, updateLis
                     fullWidth
                     size='normal'
                     className="inputUser"
-                    value='50.00'
+                    value='40.00'
                     onBlur={formik.handleBlur}
                     onChange={formik.handleChange}
                     disabled
