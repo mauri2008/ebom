@@ -25,8 +25,10 @@ import FormDownPay from '../../components/FormDownPay'
 
 import { 
     Container, 
-    Content ,   
+    Content, 
+    GroupFilter,   
 } from './style';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 export default function Sales(){
 
@@ -47,7 +49,10 @@ export default function Sales(){
     const [clearForm, setClearForm] = useState(false)
     const [dataClienURL, setDataClientURL] = useState({label:'', id:''})
     const [controlModal, setControlModal] = useState('create');
-    const [idPayDown, setIdPayDown] = useState('')
+    const [idPayDown, setIdPayDown] = useState('');
+    const [search, setSearch] = useState('');
+    const [orderby, setOrderBy] = useState('clients.name_client');
+    const [directionOrderBy, setDirectionOrderBy] = useState('asc')
 
     const {state, actions} = useContext(StateContext)
 
@@ -59,7 +64,7 @@ export default function Sales(){
         setListData(false);
         
         const offset = (pageNow-1)*10
-        const response =search? await api.insert(`${ENDPOINT}/search`,{search}, actions):await api.get(`${ENDPOINT}/${offset}`, actions);
+        const response =search? await api.insert(`${ENDPOINT}/search`,{ search, orderby }, actions):await api.get(`${ENDPOINT}/${offset}?orderby=${orderby}&order=${directionOrderBy}`, actions);
 
         if(Object.keys(response.data).length === 0){          
             setLoading(false)
@@ -112,22 +117,6 @@ export default function Sales(){
         setTimeout(() => {
             getData()
         }, 500);
-    }
-
-    const handleShowUpdate = async (idClient)=>{
-
-        const response = await api.insert(`${ENDPOINT}/search`,{searchid:idClient}, actions)
-        
-        if(Object.keys(response).length === 0){          
-            setLoading(false)
-            return ''
-        }
-        const {client, id_client, ...dataUpdate } = response.data;
-            
-   
-        setUpdateClient({label:client, id:id_client})
-        setUpdate(dataUpdate);
-        setModalNewElement(true);
     }
 
     const handleSearch = async (element) =>{
@@ -201,7 +190,7 @@ export default function Sales(){
         getClients()
         getdataClientURL()
 
-    },[])
+    },[orderby, directionOrderBy])
 
     return (
         <Container> 
@@ -219,16 +208,45 @@ export default function Sales(){
                             title={`Lista de ${PAGETITLE.toLowerCase()}`}
                             subtitle={`Total de participantes: ${countData}`}
                             >
-                            <div>
-                                <TextField 
-                                    name="Pesquisar"
-                                    type="text"
-                                    label="Pesquisar"
-                                    size='small'
-                                    onKeyUp={(e)=> handleSearch(e)}
-                                />
-                                
-                            </div>
+                            <GroupFilter >
+                                <FormControl sx={{width:'15rem',}} >
+                                        <InputLabel id="label-form-of-payment">Ordenar Por</InputLabel>
+                                        <Select
+                                            labelId='label-form-of-payment'
+                                            label="Forma de pagamento"
+                                            name="form_of_payment"
+                                            value={orderby}
+                                            onChange={(e)=>setOrderBy(e.target.value)}
+                                        >
+                                            <MenuItem value="clients.name_client">Nome</MenuItem>
+                                            <MenuItem value="sales.paid_sale">Pagamento</MenuItem>
+                                            <MenuItem value="sales.paying_sale">Pagantes</MenuItem>
+                                            <MenuItem value="sales.form_of_payment">Forma de pagamento</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                <FormControl sx={{width:'10rem',}}>
+                                        <InputLabel id="label-form-of-payment">Ordem</InputLabel>
+                                        <Select
+                                            labelId='label-form-of-payment'
+                                            label="Forma de pagamento"
+                                            name="form_of_payment"
+                                            value={directionOrderBy}
+                                            onChange={(e)=>setDirectionOrderBy(e.target.value)}
+                                        >
+                                            <MenuItem value="asc">Crescente</MenuItem>
+                                            <MenuItem value="desc">Decrescente</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                    <TextField 
+                                        name="Pesquisar"
+                                        type="text"
+                                        label="Pesquisar"
+                                        value={search}
+                                        onChange={(e)=>setSearch(e.target.value)}
+                                        onKeyUp={(e)=> handleSearch(e)}
+                                    />
+                                    
+                            </GroupFilter>
                         </HeaderTable>
                         <div>
                             {
