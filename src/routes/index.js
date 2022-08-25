@@ -9,6 +9,7 @@ import Churchs from "../pages/churchs";
 import Sales from  "../pages/sales";
 import Financial from "../pages/financial";
 import Reports from "../pages/reports"
+import { PrizeDraw } from "../pages/prizeDraw";
 
 import Route from './Route';
 
@@ -25,7 +26,8 @@ export default function ListRoutes(){
             <Route path="/compras/:idclient" component={Sales} isPrivate/>
             <Route path="/financeiro" component={Financial} isPrivate/>
             <Route path="/relatorios" component={Reports} isPrivate/>
-            
+            <Route path="/sorteio" component={PrizeDraw} isPrivate/>
+                
         </Switch>
     )
 }
