@@ -44,3 +44,9 @@ export const CombineButton = styled.div`
     }
 
 `
+
+export const GroupFilter = styled.div`
+    width: 40rem;
+    display: flex ;
+    gap:1rem;
+`
