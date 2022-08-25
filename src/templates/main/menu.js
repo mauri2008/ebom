@@ -12,6 +12,7 @@ import Person from '@mui/icons-material/Person';
 import AssignmentInd  from '@mui/icons-material/AssignmentInd';
 import Church from '@mui/icons-material/Church';
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
+import Redeem from '@mui/icons-material/Redeem';
 
 
 const itensMenu = [
@@ -44,6 +45,11 @@ const itensMenu = [
         title:'Relatórios',
         link:'/relatorios',
         icon: <FactCheckIcon/>
+    },
+    {
+        title:'Sorteio',
+        link:'/sorteio',
+        icon: <Redeem/>
     },
     {
         title:'Usuários',
