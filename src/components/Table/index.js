@@ -46,7 +46,7 @@ const Table = (
                 </tbody>
             </C.Table>
             {
-                countPagination &&
+                countPagination > 0 &&
                     <Pagination  count={countPagination} page={page} handleChange={handlePagination.bind(this)} />
             }
         </C.Container>
