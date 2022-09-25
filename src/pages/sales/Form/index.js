@@ -16,40 +16,66 @@ import { StateContext } from '../../../context';
 import { successNotification } from '../../../helpes/notification';
 
 
-const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cleanForm, setCleanForm}) =>{
+const FormSales = ({ idUpdateSale , setCloseModal}) =>{
     const ENDPOINT = 'sales';
 
     const api = UseAPI()
     const [loading , setLoading] = useState(false)
-    const [ client, setClient ] = useState(clientUpdate? clientUpdate : clientURL)
+    const [ client, setClient ] = useState({})
     const [ controlPaid, setControlPaid] = useState(false)
     const [ controlFormOfPayment, setControlFormOfPayment] = useState(false)
-    const {state, actions} = useContext(StateContext);
+    const [ clients, setClients ] = useState([])
+    const { actions } = useContext(StateContext);
+    
+    const valueDefaultFormik = {
+        id:'',
+        paid_sale: "", 
+        paying_sale:  "",
+        value_sale: "40.00",
+        form_of_payment: "",
+        note:''
+    }
 
+    async function getListClients () {
+        
+        const response = await api.insert('clients/search',{search:"nopaid",value:'nopaid'},actions);
+        
+        if(response) {          
+            const listClients =  response.data.map(element=>{
+                return{
+                    label:element.name_client,
+                    id:element.id
+                }
+            })
+            setClients(listClients);
+        }
+    }
+
+    async function getSaleUpdate () {
+        const response = await api.insert(`${ENDPOINT}/search`,{searchid:idUpdateSale}, actions);
+
+        if( response ) {
+            const {data : sale} = response;
+            const clientData = {label:sale.client, id: sale.id_client};
+
+            setClient(clientData);
+
+            formik.setValues({
+                id:sale.id,
+                paid_sale:sale.paid_sale,
+                paying_sale:sale.paying_sale,
+                form_of_payment:sale.form_of_payment,
+                note: sale.note
+            })
+        }
+    }
+    
     const handleSetClient = (event, value) =>{
         setClient(value)
     }   
 
-    const valueDefaultFormik = {
-        id:update?.id??'',
-        paid_sale:update?.paid_sale?? "", 
-        paying_sale: update?.paying_sale ?? "",
-        value_sale: "40.00",
-        form_of_payment: update?.form_of_payment??"",
-        note: update?.note??''
-    }
-
     const handleCleanform = () =>{
-        formik.setValues({
-            id:'',
-            paid_sale: "", 
-            paying_sale:"",
-            value_sale: "40.00",
-            form_of_payment: "",
-            note: ''
-        })
-        setClient({label:'',id:''})
-        setCleanForm(false)
+        formik.resetForm()
     }
 
     
@@ -57,19 +83,42 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
         initialValues:valueDefaultFormik,
         validationSchema:'',
         onSubmit: async value=>{
-            setLoading(true)
-            value.id_client = client.id
-            const setSales = !update ? await api.insert(ENDPOINT,value, actions) : await api.update(`${ENDPOINT}/update/${value.id}`,value, actions);
-            if(Object.keys(setSales).length === 0){          
-                     setLoading(false)
-                    return ''
-            }
-                successNotification(actions,'Ação registrada com sucesso!');
+
+             setLoading(true)
+
+             value.id_client = client.id
+
+             if(value.paying_sale === 'no'){
+                value.paid_sale = 'yes'
+                value.form_of_payment = 'isento'
+                value.value_sale = '0.00'
+             } 
+            
+             const response = !idUpdateSale ? 
+                    await api.insert(
+                        ENDPOINT,
+                        value, 
+                        actions
+                    ) 
+                    : 
+                    await api.update(
+                        `${ENDPOINT}/update/${value.id}`,
+                        value, 
+                        actions
+                    );
+
+            if(response.status === 'ok'){          
+                successNotification(actions,idUpdateSale ? 'Compra alterada com sucesso !' : 'Compra registrada com sucesso!');
                 setLoading(false)
+                actions.setReloadList(true)
                 setCloseModal(false)
             }
-        })
+
+             setLoading(false)
+        }
+    })
         
+
 
     const handleAbilityFunc = ()=>{
         if(formik.values.paying_sale === 'yes'){
@@ -89,31 +138,48 @@ const FormSales = ({clients, update , setCloseModal, clientUpdate, clientURL, cl
     }
 
     useEffect(()=>{
-        if(cleanForm){
-            handleCleanform()
-        }
-    })
+        idUpdateSale ? getSaleUpdate(): getListClients();
+        handleCleanform()   
+
+    },[])
 
     useEffect(() => {
         handleAbilityFunc()
     }, [formik.values]);
+
+
     return(
         <Box>
             <form onSubmit={formik.handleSubmit}>
                 <input type="hidden" name="id" value={formik.values.id}/>
                 <Stack spacing={3}>
+                    
+                    {
+                        !idUpdateSale ?
+                            (<Autocomplete 
+                                disablePortal
+                                name='id_client'
+                                inputValue={ client.label }
+                                options={clients??[]}
+                                getOptionLabel={(option) => option.label || ''}
+                                onChange={handleSetClient}
+                                renderInput={(params)=> <TextField {...params} label="Participante"/>}
+                                required
+                            />):(
+                                <TextField
+                                    name="id_client"
+                                    type="text"
+                                    label=""
+                                    fullWidth
+                                    size='normal'
+                                    className="inputUser"
+                                    value={client?.label}
+                                    disabled
+                                />
+                            )
 
-                    <Autocomplete 
-                        disablePortal
-                        name='id_client'
-                        inputValue={ client.label }
-                        options={clients??[]}
-                        getOptionLabel={(option) => option.label || ''}
-                        onChange={handleSetClient}
-                        renderInput={(params)=> <TextField {...params} label="Participante"/>}
-                        disabled={clientURL}
-                        required
-                    />
+                    }   
+                    
                     <FormControl fullWidth>
                         <InputLabel id="label-paid">Pagante</InputLabel>
                         <Select

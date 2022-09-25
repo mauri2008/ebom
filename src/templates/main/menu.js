@@ -65,7 +65,7 @@ const Menu = () =>{
             <ul>
                 {
                     itensMenu.map(item =>(
-                        <li>
+                        <li key={item.title}>
                             <NavLink 
                                 to={item.link}
                                 className={isActive =>`${isActive ? 'select':''}`}

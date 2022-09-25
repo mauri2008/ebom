@@ -1,15 +1,17 @@
-import React, {useState} from 'react'
+import React, {useState, useContext, useEffect } from 'react'
 import { Stack, TextField, FormControl, Select, InputLabel, MenuItem, Typography, Box, Button} from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { CreditScore } from '@mui/icons-material'
 import { useFormik } from 'formik'
 import useAPi from '../../services/api'
 import { successNotification } from '../../helpes/notification';
+import { StateContext } from '../../context'
 
-const FormDownPay = ({ onClose, id, actions, updateViewUser, idClient, updateListView}) =>{
+const FormDownPay = ({ onClose, id, updateList}) =>{
 
     const ENDPOINT = 'sales';
     const api = useAPi();
+    const { actions } = useContext(StateContext);
     const [loading, setLoading] = useState(false)
     const formik = useFormik({
         initialValues:{
@@ -30,23 +32,23 @@ const FormDownPay = ({ onClose, id, actions, updateViewUser, idClient, updateLis
 
                 successNotification(actions,'Ação registrada com sucesso!');
                 setLoading(false)
-                if(updateViewUser ){
-                    updateViewUser(idClient)
+
+                if(updateList){
+                    updateList()
                 }
-                if(updateListView){
-                    updateListView()
-                }
-                handleClose()
+                
+                onClose()
 
             }
 
         }
     })
 
-    const handleClose = ()=>{
+    useEffect(()=>{
         formik.resetForm();
-        onClose(false)
-    }
+    },[])
+
+    
 
     return(
         <form onSubmit={formik.handleSubmit}>
@@ -85,7 +87,7 @@ const FormDownPay = ({ onClose, id, actions, updateViewUser, idClient, updateLis
                 />
 
                 <Stack spacing={2} direction='row-reverse'>
-                    <Button  variant="outlined" color="error" onClick={()=>handleClose()} disabled={loading}>Cancelar</Button>
+                    <Button  variant="outlined" color="error" onClick={onClose} disabled={loading}>Cancelar</Button>
                     <LoadingButton variant="outlined" type="submit" loading={loading}>Baixar</LoadingButton>
                 </Stack>
             </Stack>

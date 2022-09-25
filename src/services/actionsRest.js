@@ -1,19 +1,19 @@
 import UseApi from './api';
-import { errorNotification, successNotification } from '../helpes/notification'
+import { successNotification } from '../helpes/notification'
 
-export const handleDelete = async (id, actions, endPoint, successMessage)=>{
-    if( window.confirm('Deseja realmente remover este item?'))
+export const handleDelete = async (props)=>{
+    if( window.confirm(props?.messageAlert ? props?.messageAlert :'Deseja realmente remover este item?'))
     {
         const api = UseApi();
 
-        const response = await api.delete(`${endPoint}/${id}`, actions);
+        const response = await api.delete(`${props.endPoint}/${props.id}`, props.actions);
         
-        if(Object.keys(response).length === 0){          
-            return ''
+        if(Object.keys(response).length){          
+            successNotification(props.actions, `${props.successMessage} removido com sucesso!`)
         }
+
+        props.actions.setReloadList(true);
         
-        successNotification(actions, `${successMessage} removido com sucesso!`)
-    
     }
     
     return''

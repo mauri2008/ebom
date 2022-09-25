@@ -21,9 +21,11 @@ const apiFetch = async (endpoint, body, method, actions) =>{
         }
 
         const res= await fetch(paramsSystem.URLBASE+endpoint,params)
+        const responseJson = await res.json()
 
         const responseStatus = {
-          200: await res.json(),
+          200: responseJson,
+          400: responseJson?.message??'Ocorreu um erro interno Tente novamente',
           404: 'Elemento requisitado Não encontrado',
           500: 'Ocorreu um erro interno, Tente novamente'
         }
@@ -39,7 +41,7 @@ const apiFetch = async (endpoint, body, method, actions) =>{
 
 
      }catch(error){
-        AlertError(actions, 'Ocorreu um erro No servidro tente novamente')
+        AlertError(actions, 'Ocorreu um erro No servidor tente novamente')
         return '';
      }
 }
