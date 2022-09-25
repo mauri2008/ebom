@@ -12,6 +12,7 @@ const initialState = {
         type:'default'
     },
     loading: false,
+    reloadlist:false
 }
 
 export const StateContext = React.createContext(
@@ -37,6 +38,11 @@ const setIsLoading = (state, setState, loading) =>{
     setState({ loading } )
 }
 
+const setReloadList= (state, setState, reloadlist) =>{
+    setState({ reloadlist } )
+}
+
+
 export const Context = props => {
     const [state, _setState] = useState(initialState)
 
@@ -48,7 +54,8 @@ export const Context = props => {
     const actions = {
         setUser: setUser.bind(null, state, setState),
         setIsError: setIsError.bind(null, state, setState),
-        setIsLoading: setIsLoading.bind(null, state, setState)
+        setIsLoading: setIsLoading.bind(null, state, setState),
+        setReloadList: setReloadList.bind(null, state, setState)
     }
 
     return(

@@ -23,7 +23,7 @@ export const Content = styled.section`
     width:calc(100% - 270px);
     margin-left:270px;
     padding:30px 20px;
-    background: #fff ;
+    background: #fff;
     box-sizing: border-box;
 `
 export const Logo = styled.img`

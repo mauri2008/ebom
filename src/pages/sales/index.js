@@ -26,45 +26,48 @@ import FormDownPay from '../../components/FormDownPay'
 import { 
     Container, 
     Content, 
-    GroupFilter,   
+    GroupFilter,
+    ItemStatusSales,
+    StatusSales,
+    TitleItemStatusSales,   
 } from './style';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { AssignmentInd, AttachMoney, MoneyOff } from '@mui/icons-material';
 
 export default function Sales(){
 
-    const paramsURL = useParams()
     const ENDPOINT = 'sales';
     const PAGETITLE = 'Compras'
 
     const [listData, setListData] = useState(false);
     const [countData, setCountdata] = useState(0);
-    const [clientData, setClientData] = useState([])
-    const [updateClient, setUpdateClient] = useState(false)
     const [modalNewElement, setModalNewElement ] = useState(false);
-    const [update, setUpdate] = useState(false);
     const [loading, setLoading] = useState(false);
     const [pageNow, setPageNow] = useState(0);
     const [countPages, setCountPages] = useState(0);
-    const [validIdURL, setValidIdURL] = useState(true)
-    const [clearForm, setClearForm] = useState(false)
-    const [dataClienURL, setDataClientURL] = useState({label:'', id:''})
     const [controlModal, setControlModal] = useState('create');
     const [idPayDown, setIdPayDown] = useState('');
-    const [search, setSearch] = useState('');
     const [orderby, setOrderBy] = useState('clients.name_client');
-    const [directionOrderBy, setDirectionOrderBy] = useState('asc')
+    const [directionOrderBy, setDirectionOrderBy] = useState('asc');
+    const [ idUpdateSale, setIdUpdateSale ] = useState('');
+    const [ statusList, setStatusLists ] = useState({});
+    const [ activeStatus, setActiveStatus] = useState('full')
+    const [ search, setSearch] = useState('');
+    const [ limitData, setLimitData ] = useState(10)
 
     const {state, actions} = useContext(StateContext)
-
     const api = UseApi();
 
 
-    const getData = async (search = false)=>{
+    const getData = async ()=>{
         setLoading(true);
         setListData(false);
-        
+         
         const offset = (pageNow-1)*10
-        const response =search? await api.insert(`${ENDPOINT}/search`,{ search, orderby }, actions):await api.get(`${ENDPOINT}/${offset}?orderby=${orderby}&order=${directionOrderBy}`, actions);
+        const response =(search) ? 
+                        await api.insert(`${ENDPOINT}/search`,{ search, orderby, offset, limit:limitData }, actions)
+                        :
+                        await api.get(`${ENDPOINT}/${offset}?limit=${limitData}&orderby=${orderby}&order=${directionOrderBy}`, actions);
 
         if(Object.keys(response.data).length === 0){          
             setLoading(false)
@@ -84,29 +87,21 @@ export default function Sales(){
             ]
         ));
 
-        setCountdata(response.total?? Object.keys(response.data).length);
+        setStatusLists(response.statusList)
+
+        const listOptionsStatus ={
+            open:'amountOpen',
+            close:'amountClose',
+            exempt:'amountExempt',
+            full:'amountFull',
+        } 
+
+        setCountdata(response.statusList[listOptionsStatus[activeStatus]]);
         setLoading(false);       
     }
 
-    const getClients = async()=>{
-        let mergeDataclient = [];
-        const response = await api.get('clients/all',actions);
-
-        if(Object.keys(response.data).length === 0){          
-            return ''
-        }
-        response.data.map(element=>{
-            let obj = {
-                label:element.name_client,
-                id:element.id
-            }
-            mergeDataclient.push(obj)
-        })
-        setClientData(mergeDataclient);
-
-    }
-    const handleShowModal = () => {
-        setClearForm(true)
+    const handleShowModalCreatePay = () => {
+        setIdUpdateSale(false)
         setControlModal('create')
         setModalNewElement(!modalNewElement)
 
@@ -114,9 +109,7 @@ export default function Sales(){
 
     const handleDeleteElement = (id)=>{
         handleDelete(id, actions,ENDPOINT,PAGETITLE)
-        setTimeout(() => {
-            getData()
-        }, 500);
+
     }
 
     const handleSearch = async (element) =>{
@@ -133,35 +126,29 @@ export default function Sales(){
         
     }
 
-
     const handlePagination= (event, value) => {     
         setPageNow(value)
     }
 
-    const getdataClientURL = async()=>{
-        if(validIdURL && paramsURL?.idclient){
-            console.log('teste')
-            const dataClient = await searchClient({api,ENDPOINT:'clients',search:{searchid:paramsURL.idclient}})
-            if(!dataClient){return ''}
-            
-            setDataClientURL({label:dataClient.name_client, id:paramsURL.idclient}) 
-            setModalNewElement(true)
-            setValidIdURL(false)
-        }else{
-            setDataClientURL(false)
-        }
+    function handleSetIdUpdateSale ( value ) {
+        setIdUpdateSale(value)
+        setControlModal('create')
+        setModalNewElement(!modalNewElement)
+    }
+
+    function handleAlterStatusList ( status ) {
+        setActiveStatus(status);
+        setSearch(status!=='full'?status:'')
+    }
+
+    function handleSetLimitData ( value ) {
+        setLimitData(value.target.value)
     }
 
     const modals = {
         create:(<FormSales  
-                clients={clientData} 
-                clientUpdate={updateClient}
-                clientURL = {dataClienURL}
-                update={update}
-                setCloseModal={setModalNewElement.bind()}
-                setCleanForm={setClearForm.bind()}
-                cleanForm={clearForm}
-
+                idUpdateSale={idUpdateSale}
+                setCloseModal={setModalNewElement}
                 />),
         downpay:(<FormDownPay
                     onClose={setModalNewElement}
@@ -169,46 +156,110 @@ export default function Sales(){
                     actions = {actions}
 
                 />)
-        
-            
+    }
 
+    const ListLabelStatus = {
+        full:'Lista de compras',
+        open:'Lista de compras em aberto',
+        close:'Lista de compras pagas',
+        exempt:'Lista de compras isentas',
     }
 
     useEffect(()=>{
         getData()
     },[pageNow])
 
-    useEffect(() => {
-        if(!modalNewElement){
-            getData()
-        }
-    }, [modalNewElement]);
-
     useEffect(()=>{
         setPageNow(1);
         getData()
-        getClients()
-        getdataClientURL()
+    },[
+        orderby, 
+        directionOrderBy, 
+        search,
+        limitData
+    ])
 
-    },[orderby, directionOrderBy])
+    useEffect(()=>{
+        if(state.reloadlist)
+        {
+            getData();
+            actions.setReloadList(false)
+        }
+    },[state.reloadlist])
 
     return (
         <Container> 
             <Header
                 title={PAGETITLE}
                 titleButton={`Adicionar ${PAGETITLE.toUpperCase()}`}
-                handleShowModal={handleShowModal}
+                handleShowModal={handleShowModalCreatePay}
                 IconButton={Add}
             />
             <Content>
                 {
                     !loading &&
                     <>
+                        <StatusSales>
+                            <ItemStatusSales color='#e74c3c' onClick={()=>handleAlterStatusList('open')}>
+                                <TitleItemStatusSales >
+                                    <MoneyOff />
+                                    <h3>
+                                        Titulos em Aberto
+                                    </h3>
+                                </TitleItemStatusSales>
+                                <h2>{statusList?.amountOpen??'0'}</h2>
+                            </ItemStatusSales>
+
+                            <ItemStatusSales color='#07bc0c' onClick={()=>handleAlterStatusList('close')}>
+                                <TitleItemStatusSales >
+                                    <AttachMoney/>
+                                    <h3>
+                                        Titulos Pagos
+                                    </h3>
+                                </TitleItemStatusSales>
+                                <h2>{statusList?.amountClose??'0'}</h2>
+                            </ItemStatusSales>
+
+                            <ItemStatusSales color='#f1c40f' onClick={()=>handleAlterStatusList('exempt')}>
+                                <TitleItemStatusSales>
+                                    <AssignmentInd/>
+                                    <h3>
+                                        Titulos Isentos
+                                    </h3>
+                                </TitleItemStatusSales>
+                                <h2>{statusList?.amountExempt??'0'}</h2>
+                            </ItemStatusSales>
+                            
+                            <ItemStatusSales color='#3498db' onClick={()=>handleAlterStatusList('full')}>
+                                <TitleItemStatusSales>
+                                    <AssignmentInd/>
+                                    <h3>
+                                        Total de titulos
+                                    </h3>
+                                </TitleItemStatusSales>
+                                <h2>{statusList?.amountFull??'0'}</h2>
+                            </ItemStatusSales>
+                        </StatusSales>
+
                         <HeaderTable
-                            title={`Lista de ${PAGETITLE.toLowerCase()}`}
-                            subtitle={`Total de participantes: ${countData}`}
+                            title={ListLabelStatus[activeStatus]}
+                            subtitle={`Total de listados: ${countData}`}
                             >
                             <GroupFilter >
+                                <TextField
+                                    name='amountView'
+                                    label='Qtd. itens'
+                                    select
+                                    sx={{width:'12rem'}}
+                                    value={limitData}
+                                    onChange={handleSetLimitData}
+                                >
+                                    <MenuItem value='10'>10</MenuItem>
+                                    <MenuItem value='20'>20</MenuItem>
+                                    <MenuItem value='30'>30</MenuItem>
+                                    <MenuItem value='40'>40</MenuItem>
+                                    <MenuItem value='50'>50</MenuItem>
+                                </TextField>
                                 <FormControl sx={{width:'15rem',}} >
                                         <InputLabel id="label-form-of-payment">Ordenar Por</InputLabel>
                                         <Select
@@ -223,28 +274,30 @@ export default function Sales(){
                                             <MenuItem value="sales.paying_sale">Pagantes</MenuItem>
                                             <MenuItem value="sales.form_of_payment">Forma de pagamento</MenuItem>
                                         </Select>
-                                    </FormControl>
+                                </FormControl>
+
                                 <FormControl sx={{width:'10rem',}}>
-                                        <InputLabel id="label-form-of-payment">Ordem</InputLabel>
-                                        <Select
-                                            labelId='label-form-of-payment'
-                                            label="Forma de pagamento"
-                                            name="form_of_payment"
-                                            value={directionOrderBy}
-                                            onChange={(e)=>setDirectionOrderBy(e.target.value)}
-                                        >
-                                            <MenuItem value="asc">Crescente</MenuItem>
-                                            <MenuItem value="desc">Decrescente</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                    <TextField 
-                                        name="Pesquisar"
-                                        type="text"
-                                        label="Pesquisar"
-                                        value={search}
-                                        onChange={(e)=>setSearch(e.target.value)}
-                                        onKeyUp={(e)=> handleSearch(e)}
-                                    />
+                                    <InputLabel id="label-form-of-payment">Ordem</InputLabel>
+                                    <Select
+                                        labelId='label-form-of-payment'
+                                        label="Forma de pagamento"
+                                        name="form_of_payment"
+                                        value={directionOrderBy}
+                                        onChange={(e)=>setDirectionOrderBy(e.target.value)}
+                                    >
+                                        <MenuItem value="asc">Crescente</MenuItem>
+                                        <MenuItem value="desc">Decrescente</MenuItem>
+                                    </Select>
+                                </FormControl>
+
+                                <TextField 
+                                    name="Pesquisar"
+                                    type="text"
+                                    label="Pesquisar"
+                                    value={search}
+                                    onChange={(e)=>setSearch(e.target.value)}
+                                    onKeyUp={(e)=> handleSearch(e)}
+                                />
                                     
                             </GroupFilter>
                         </HeaderTable>
@@ -259,6 +312,7 @@ export default function Sales(){
                                             page={pageNow}
                                             handlePagination={handlePagination.bind(this)}
                                             handleDownPay={handleDownPay}
+                                            handleUpdate={handleSetIdUpdateSale}
                                         />
                                     </div>
                             }

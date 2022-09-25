@@ -3,6 +3,7 @@ import Modal from '@mui/material/Modal'
 
 export const Container = styled.div`
     padding-bottom:30px ;
+    box-sizing: border-box ;
 `
 export const Content = styled.main`
     display: flex ;
@@ -50,100 +51,36 @@ export const ModalBox = styled(Modal)`
     overflow-x:auto ;
     padding: 20px 0px;
     
-
-
 `
 
-export const ContainerPrint = styled.div`
-    width: 850px ;
-    background: #fff;
-    margin-top:500px;
-    box-sizing: border-box;
-    padding: auto;
-    display:flex ;
-    flex-direction:column ;
-    justify-content: center;
-    align-items: center ;
-    
-
-    @media print {
-        .print{
-            display: grid ;
-            margin-top:-498px;
-            margin-left:5px ;
-           
-        }
-        .no-print{
-            display: none ;
-        }
-    }
-`
-
-export const SectionPrint = styled.section`
-    transform: scale(0.9) ; 
-    width: 794px ;
-    height: 1123px ;
+export const ContentList = styled.article`
     box-sizing: border-box ;
-    border: 1px solid #c3c3c3;
-    display: grid;
-    grid-auto-rows: 211px ;
-    grid-template-columns: 374px 374px;
-    grid-row-start:1 ;
-    grid-gap:1px 10px ;
-    padding:30px 14px;
-
-
-    @media print {
-        
-            width: 870px;
-            height: 1243px ;
-            grid-gap:1px 10px ;
-            grid-auto-rows: 211px ;
-            grid-template-columns: 384px 384px;
-            grid-row-start:1 ;
-            transform:scale(1) ;
-            margin:0;
-            background:red;
-            
-
-
-        
-    }
-
-`
-export const Codes = styled.div`
-    display: flex ;
-    justify-content: center ;
-    align-items:center ;
-    flex-direction: column ;
-    box-sizing: border-box ;
-    /* background-color: red ; */
-    border-radius: 5px ;
-    & p{
-        margin-bottom:10px;
-
-    }
-    @media print{
-
-
-            background-color: red ;
-        
-    }
-`
-export const ToolsPrint = styled.div`
     width: 100% ;
-    display: flex ;
-    align-items: center ;
-    justify-content:flex-end ;
-    margin-top:20px;
-    padding: 5px 25px ;
-    box-sizing: border-box;
-
-    & svg{
-        margin-left: 20px;
-    }
 `
-export const InputStart = styled.div`
-    width:150px ;
 
+export const ItensList = styled.div`
+    display:grid;
+    grid-template-columns: 3.5% repeat(6,15.3%);
+    gap:0.5rem;
+    text-align: left;
+    margin-bottom: 0.5rem;
+    padding:1.5rem;
+    border:1px solid var(--bs-gray-500);
+    border-radius:5px;
+    align-items: center ;
+    box-sizing:border-box ;
+    width:100%;
+`
+
+export const GroupBottomList = styled.div`
+    width:100% ;
+    display: flex ;
+    justify-content: flex-end ;
+    box-sizing:border-box ;
+
+    button{
+        svg{
+            font-size:1.2rem ;
+        }
+    }
 `

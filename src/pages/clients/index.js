@@ -1,51 +1,39 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Header from '../../components/header';
 import HeaderTable from '../../components/Table/header';
-import Table from '../../components/Table';
-import { successNotification } from '../../helpes/notification';
 import NotFoundData from '../../components/notFoundData';
 import UseApi from '../../services/api'
 import { StateContext } from '../../context';
-import TextField  from '@mui/material/TextField';
-import FormControl  from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import InputLabel  from '@mui/material/InputLabel';
-import Select  from '@mui/material/Select';
-import MenuItem  from '@mui/material/MenuItem';
-import Button from '@mui/material/Button';
-import Print  from '@mui/icons-material/Print';
-import Close from '@mui/icons-material/Close';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import LoadingButton  from '@mui/lab/LoadingButton';
-import { useFormik } from 'formik';
-import * as Yup from 'yup'
-import { handleDelete } from '../../services/actionsRest'
-import QRCode from 'react-qr-code'
-import Loading from '../../components/Loading'
-import BoxModal from '../../components/boxModal';
-import ViewClient from './view';
-import ConfirmNewSold from './modals/confirmNewSold';
-import FormSales from '../sales/Form';
+import {
+    TextField,
+    Checkbox,
+    Button,
+    IconButton,
+    MenuItem,
+    Stack
+} from '@mui/material';
 
-import { setDataTable, searchClient } from '../../helpes/functions'
+import { handleDelete } from '../../services/actionsRest'
+import Loading from '../../components/Loading'
+import ViewClient from './view';
+import { ListItens } from '../../components/ItemsList';
+
+import { PrintQrcode } from './modals/printQrcode';
+
+import { searchClient } from '../../helpes/functions'
 
 import Add from '@mui/icons-material/Add';
 import { 
     Container, 
     Content ,
-    ContainerBox,
-    HeaderBox,
-    ContainerPrint,
-    ModalBox,
-    SectionPrint,
-    Codes,
-    ToolsPrint,
-    InputStart
-
+    ContentList,
+    ItensList,
+    GroupBottomList
 } from './style';
+import { Edit, Person, Delete } from '@mui/icons-material'
 import Paginations from '../../components/pagination'
+import { ModalDefault } from '../../components/Modal';
+import { RegisterClient } from './modals/registerClient';
 
 export default function Clients(){
 
@@ -53,125 +41,56 @@ export default function Clients(){
 
     const [ listClient, setlistClients] = useState(false);
     const [ countClient, setCountClient] = useState(0);
-    const [ churchs, setChurchs] = useState([])
     const [ loading, setLoading] = useState(true);
-    const [ loadingButton, setLoadingButton] = useState(false);
-    const [ headerTable, setHeaderTable] = useState(false);
-    const [ isShepherd, setIsShepherd] = useState(false);
-    const [ update, setUpdate] = useState(false);
-    const [ idCodesSelect, setIdCodesSelect] = useState([])
+    const [ clientsSelects, setClientsSelects] = useState([])
     const [ modalNewClient, setModalNewClient ] = useState(false);
     const [ modalPrintQrcode, setModalPrintQrcode] = useState(false)
     const [ modalViewClient, setModalViewClient] = useState(false)
-    const [ confimerNewSold, setConfimerNewSold] = useState(false)
-    const [ modalSold, setModalSold] = useState(false)
-    const [ dataClientSale, setDataClientSale] = useState([])
-    const [ positionPrint, setPositionPrint] = useState(0)
     const [ countPages, setCountPages] = useState(0);
     const [ pageNow, setPageNow] = useState(1);
-    const [ dataViewClient, setDataViewClient] = useState({})
     const [ search, setSearch ] = useState('');
+    const [ updateClient, setUpdateClient ] = useState(false);
+    const [ idUserView, setIdUserView] = useState(0);
+    const [ totalItens, setTotalItens ] = useState(10)
     
-    const {state, actions} = useContext(StateContext)
+    const { actions, state } = useContext(StateContext)
     const api = UseApi();
 
-    const valueFormikDefault = {
-        id:'',
-        name_client:'',
-        id_church:'',
-        email:'',
-        phone:''
-    }
 
-    const getClients = async (search = false)=>{
+    const getClients = async (itemSearch = false)=>{
         setLoading(true);
         const offset = (pageNow-1)*10;
-        const response =search? await api.insert(`${ENDPOINT}/search`,{search}, actions):await api.get(`${ENDPOINT}/${offset}`, actions);
+        const response =itemSearch? await api.insert(`${ENDPOINT}/search`,{search:'list',value:itemSearch}, actions):await api.get(`${ENDPOINT}/${offset}/${totalItens}`, actions);
 
         if(Object.keys(response.data).length === 0){          
             setLoading(false)
             return ''
         }
-        const alterLabelPay = response.data.map(client =>(
-            {...client, 
-                paying_sale: client.paying_sale==='no'?'Sim':'Não', 
-                paid_sale:client.paid_sale==='yes'?'Sim':'Não'
-            }
-        ))
 
-        setlistClients(setDataTable(alterLabelPay,
-            [            
-                {key:'id', title:'id'},
-                {key:'name_client', title:'Nome'},
-                {key:'paying_sale', title:'Isento'},
-                {key:'email', title:'Email'},
-                {key:'phone', title:'Telefone'},
-                {key:'name_church', title:'Igreja'},
-                {key:'paidout',title:'paidout'}
-            ]
-            ))
-
-        setCountPages(response.pages)
-        setCountClient(response.total ?? 0)
+        setlistClients(response?.data)
+        setCountPages(response?.pages)
+        setCountClient(response?.total ?? 0)
         setLoading(false);       
     }
 
-    const getChurch = async ()=>{
-        const response = await api.get('church', actions);
-        if(Object.keys(response).length === 0){          
-            setLoading(false)
-            return ''
-        }
-        setChurchs(response.data)
-    }
-
-    const handleShowModal = () => {
-        setModalNewClient(!modalNewClient)
-        handleCleanForm()
-    }
-
-    const handleSetIsShepherd = ()=>{
-        setIsShepherd(!isShepherd);
-    }
-
-    const handleCleanForm = ()=>{
-        formik.setValues(valueFormikDefault);
-        setIsShepherd(false);
-        setUpdate(false)
-    }
-
     const handleDeleteClients = (id)=>{
-            setLoading(true)
-            handleDelete(id, actions,ENDPOINT,'Participante')
-            setTimeout(() => {
-                getClients()
-            }, 500);
-            setLoading(false)  
-    }
+        const filterClient = listClient.find(client => client.id === id);
 
-    const handleShowUpdateClient = async (idClient)=>{
-
-        const data = await searchClient({api,ENDPOINT,search:{searchid:idClient}})
-        if(!data){
-            return ''
-        }
-        const {id,name_client, id_church, email,phone,shepherd} = data;
-        formik.setValues({
-            id,
-            name_client,
-            id_church,
-            email,
-            phone
+        handleDelete({ 
+            id, 
+            actions,
+            endPoint:ENDPOINT,
+            successMessage:'Participante',
+            messageAlert:`Tem certeza que deseja remover ${ filterClient.name_client ? filterClient.name_client : 'este participante'} ?`
         })
-        setIsShepherd(shepherd===1? true:false)
-        setUpdate(true);
-        setModalNewClient(true);
+
     }
+
 
     const handleSearch = async (element) =>{
         if(element.key ==='Enter')
         {
-            getClients(element.target.value);
+            getClients(element.target.value !== '' ? element.target.value : false);               
         }
     }
 
@@ -179,354 +98,219 @@ export default function Clients(){
         setPageNow(value)
     }
 
-    const formik = useFormik({
-        initialValues:valueFormikDefault,
-        validationSchema: Yup.object({
-            name_client: Yup.string().required('Informe um nome válido').min(3,'campo nome deve possuir mais de 3 caracteres').max(256),
-            id_church: Yup.string().required('Selecione uma igreja'),
-            email: Yup.string().nullable(),
-            phone: Yup.string().nullable(),
-        }),
-        onSubmit: async value =>{
-            setLoadingButton(true)
-            value.shepherd = isShepherd?1:0;
-            const insertClient = !update ? await api.insert(ENDPOINT,value, actions) : await api.update(`${ENDPOINT}/update/${value.id}`,value, actions);
-            if(Object.keys(insertClient).length === 0){          
-                setLoadingButton(false)
-                return ''
-            }
-
-            
-            getClients()
-            handleCleanForm()
-            setLoadingButton(false);
-            successNotification(actions,'Participante cadastrado com sucesso!');
-            setModalNewClient(false);
-            if(!update){
-                const {id , name_client} = insertClient.data
-                setDataClientSale({label:name_client, id});
-                setConfimerNewSold(true)
-            }
-        }
-    })
-
-    const RenderListQrcode = ()=>{
-        const lengthCodeTotal = idCodesSelect.length;
-        let sunQrCodeAndPositonPrint = parseInt(lengthCodeTotal)+ parseInt(positionPrint)
-
-        if(sunQrCodeAndPositonPrint > 10)
-        {
-            alert('Valor acima do permitido! ')
-            setPositionPrint(positionPrint-1);
-            return ''
-        } 
-
-        const lengthCode = idCodesSelect.length;
-        let pointerCode = 0
-        const container = []
-        for (let i = 0 ; i < 10; i++ )
-        {
-            
-            if (i >= positionPrint){
-                if(lengthCode > pointerCode  ){
-                    
-                    container.push(contentQrcode(pointerCode))
-                    pointerCode += 1
-                }
-            }else{
-                container.push(<Codes></Codes>)
-            }
-        }
-
-        return container
-    }
-
-    const contentQrcode = (pointerCode)=>{
-        let code = idCodesSelect[pointerCode];
-        return(
-            <Codes>
-                {
-                    <>
-                        <p>{code.name.toUpperCase()}</p>
-                        <QRCode value={`${code.id}`} size='150' title='Teste'/>
-                    </>
-                }
-                     
-            </Codes>
-        )
-    }
-
     const handleQrCode= (element)=>{
-
+        const idClient = parseInt(element.target.value)
+        console.log(element.target.value)
         if(element.target.checked){
-            let dataClient = listClient.filter(item => parseInt(item.id) === parseInt(element.target.value))
-            setIdCodesSelect([...idCodesSelect, {id:dataClient[0].id, name:dataClient[0].Nome}]);
+            const dataClient = listClient.find(item => parseInt(item.id) === idClient)
+            console.log(dataClient)
+            setClientsSelects([...clientsSelects, {id:dataClient.id, name:dataClient.Nome}]);
         }else{
-            let newIdList =idCodesSelect.filter(item => parseInt(item.id) !== parseInt(element.target.value));
-            setIdCodesSelect(newIdList)  
+            let newIdList =clientsSelects.filter(item => parseInt(item.id) !== parseInt(element.target.value));
+            setClientsSelects(newIdList)  
         }
     
-    }
-
-    const handleClickPrint = () =>{
-        const listcode = [];
-        idCodesSelect.map(item =>{
-            listcode.push(item.id)
-        })
-
-        
-    }
-
-    const handleCloseModalQrCode = ()=>{
-        setModalPrintQrcode(false)
-        setPositionPrint(0)
-        setIdCodesSelect([])
     }
 
     const handleViewClient = async ( id ) => {
-        const data = await searchClient({api,ENDPOINT,search:{search:id}})
-        if(!data){
-            return ''
+
+            setIdUserView(id)
+            setModalViewClient(true)
+        
+    }
+
+    function handleOpenUpdate (idupdate) {
+        setModalNewClient(true);
+        setUpdateClient(idupdate)   
+    }
+
+    const listButton = [
+        {
+            title: 'Editar',
+            handle: idClient => handleOpenUpdate(idClient),
+            icon:(<Edit/>)
+        },
+        {
+            title:'Visualizar',
+            handle: idClient => handleViewClient(idClient),
+            icon:(<Person />)
+        },
+        {
+            title:'Remover',
+            handle:idClient => handleDeleteClients(idClient),
+            icon:(<Delete/>)
         }
+    ]
 
-        setDataViewClient(data)
-        setModalViewClient(true)
+    const listModals = [
+        {
+            open:modalPrintQrcode,
+            onclose:setModalPrintQrcode,
+            infoheader:{
+                title:'Impressão de QrCodes',
+                subtitle:`Para Imprimir as etiquetas com qrcode 
+                primeiramente selecione a possição inicial.`
+            },
+            content:(<PrintQrcode clients={clientsSelects} />)
+        },
+        {
+            open:modalNewClient,
+            onclose:setModalNewClient,
+            infoheader:{
+                title:updateClient?'Editar Participante':'Novo Participante',
+                subtitle:''
+            },
+            content:(<RegisterClient onClose={setModalNewClient} idUpdate={updateClient} onUpdateId={setUpdateClient}/>)
+        },
+        {
+            open:modalViewClient,
+            onclose:setModalViewClient,
+            infoheader:{
+                title: 'Visualizar Participante',
+                subtitle:''
+            },
+            content:(<ViewClient 
+                idClient={idUserView} 
+                onclose = {setModalViewClient}
+                updateViewUser={handleViewClient}         
+            />)
+        }
+    ]
+
+    function handleNewClient () {
+        setUpdateClient(false)
+        setModalNewClient(true)
     }
 
-    const handleOpenModalNewSold = () =>{
-        setConfimerNewSold(false)
-        setModalSold(true)
+    function handleSetTotalItens ( element ) {
+        setTotalItens(element.target.value)
     }
-
-    useEffect(()=>{ RenderListQrcode() },[positionPrint])
     
-    useEffect(()=>{ getClients() },[pageNow])
+    useEffect(()=>{ getClients() },[pageNow, totalItens])
 
     useEffect(()=>{
         getClients()
-        getChurch()
     },[])
+
+    useEffect(()=>{
+        
+        if(state.reloadlist){
+            getClients();
+            actions.setReloadList(false)
+        }
+    },[state.reloadlist])
 
     return (
         <Container> 
             <Header
                 title="Participantes"
                 titleButton='Adicionar participantes'
-                handleShowModal={handleShowModal}
+                handleShowModal={handleNewClient}
                 IconButton={Add}
             />
-            {
-                !loading &&
-                <Content>
-                    <HeaderTable
-                        title="Lista de participantes"
-                        subtitle={`Total de participantes: ${countClient}`}
+            <Content>
+                <HeaderTable
+                    title="Lista de participantes"
+                    subtitle={`Total de participantes: ${countClient}`}
+                    >
+                    <Stack spacing={1} direction='row' sx={{ minWidth:'400px' }}>
+                        <TextField
+                            label='Qt. itens'
+                            size='small'
+                            value={totalItens}
+                            onChange={handleSetTotalItens}
+                            select
+                            fullWidth
                         >
-                        <div>
-                            <TextField 
-                                name="Pesquisar"
-                                type="text"
-                                label="Pesquisar"
-                                size='small'
-                                value={search}
-                                onChange={(e)=> setSearch(e.target.value)}
-                                onKeyUp={(e)=> handleSearch(e)}
-                            />
-                        </div>
-                    </HeaderTable>
-                    <div>
-                        {
-                            idCodesSelect.length >0 &&
-                                <Button onClick={()=> setModalPrintQrcode(true)}>
-                                    Imprimir QR CODE
-                                </Button>
-                        }
-                        {
-                            listClient &&
-                                <>
-                                    <Table
-                                        data={listClient}
-                                        head={headerTable}
-                                        handleView={handleViewClient.bind(this)}
-                                        handleUpdate={handleShowUpdateClient.bind(this)}
-                                        handleDelete={handleDeleteClients.bind(this)}
-                                        handleQrCode={handleQrCode.bind(this)}
-                                    />
-                                    <Paginations count={countPages} page={pageNow} handleChange={handlePagination.bind(this)}/>
-                                </>
-                        }
-                        {
-                            !listClient && !loading &&
-                                <NotFoundData/>
-                        }
-                    </div>
+                            <MenuItem value='10'> 10 </MenuItem>
+                            <MenuItem value='20'> 20 </MenuItem>
+                            <MenuItem value='30'> 30 </MenuItem>
+                        </TextField>
 
+                        <TextField 
+                            name="Pesquisar"
+                            type="text"
+                            label="Pesquisar"
+                            size='small'
+                            value={search}
+                            onChange={(e)=> setSearch(e.target.value)}
+                            onKeyUp={(e)=> handleSearch(e)}
+                            fullWidth
+                        />
 
-                </Content>
+                    </Stack>
+                </HeaderTable>
+                <div>
+                    {
+                        clientsSelects.length >0 &&
+                            <Button onClick={()=> setModalPrintQrcode(true)}>
+                                Imprimir QR CODE
+                            </Button>
+                    }
+                    {
+                        loading&&
+                        <Loading/>
+                    }
+                    {
+                        listClient && !loading &&
+                            <>
+                                <ContentList>
+                                    {listClient.map(client=> {
+                                        return (
+                                            <ListItens key={client.id}>
+                                                <ItensList>
+                                                    <Checkbox 
+                                                        value={client.id}
+                                                        onClick={handleQrCode}
+                                                        disabled={ !client.paid_sale || client.paid_sale === 'no'}
+                                                    />
+                                                    <p>{client.name_client??'-'}</p>
+                                                    <p>{client.email??'-'}</p>
+                                                    <p>{client.name_church??'-'}</p>
+                                                    {/* <p>{client.phone}</p> */}
+                                                    <p>{client.paying_sale === 'yes' ? 'Pagante':'Isento' }</p>
 
-            }
-            <ModalBox
-                open={modalNewClient}
-                onClose={()=>{}}
-            >
-                <ContainerBox>
-                    <HeaderBox>
-                        <h3>Novo Participantes</h3>                         
-                    </HeaderBox>
-                    <Box>
-                        <input type="hidden" name="id" value={formik.values.id}/>
-                        <form onSubmit={formik.handleSubmit}>
-                            <Stack spacing={2}>
+                                                    <GroupBottomList>
+                                                        {
+                                                            listButton.map(button => (
+                                                                <IconButton  onClick={()=>button.handle(client.id)} title={button.title} key={button.title}>
+                                                                    {button.icon}
+                                                                </IconButton>
+                                                            ))
+                                                        }
+                                                    </GroupBottomList>
 
-                                <FormControlLabel 
-                                    control={
-                                        <Checkbox name='shepherd' checked={isShepherd} onChange={handleSetIsShepherd}/>
-                                    } 
-                                    label="Participante é um pastor?" 
-                                    sx={{display:'flex', justifyContent:'flex-end', marginTop:"20px", }}
-                                />
-                                <TextField
-                                    name="name_client"
-                                    type="text"
-                                    label="Nome"
-                                    fullWidth
-                                    size='normal'
-                                    className="inputUser"
-                                    value={formik.values.name_client}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    helperText={formik.touched.name_client && formik.errors.name_client?formik.errors.name_client:''}
-                                    error={formik.touched.name_client && formik.errors.name_client}
-                                />
+                                                </ItensList>
+                                            </ListItens>
+                                        )
+                                    })}
+                                </ContentList>
+                                <Paginations count={countPages} page={pageNow} handleChange={handlePagination.bind(this)}/>
+                            </>
+                    }
+                    {
+                        !listClient && !loading &&
+                            <NotFoundData/>
+                    }
+                </div>
 
-                                <TextField
-                                    name="email"
-                                    type="email"
-                                    label="Email"
-                                    fullWidth
-                                    size='normal'
-                                    className="inputUser"
-                                    value={formik.values.email}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    error={formik.touched.email && formik.errors.email}
-                                    helperText={formik.touched.email && formik.errors.email?formik.errors.email:''}
-                                />
+            </Content>
 
-                                <TextField
-                                    name="phone"
-                                    type="text"
-                                    label="Telefone"
-                                    fullWidth
-                                    size='normal'
-                                    className="inputUser"
-                                    value={formik.values.phone}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    error={formik.touched.phone && formik.errors.phone}
-                                    helperText={formik.touched.phone && formik.errors.phone?formik.errors.phone:''}
-                                />
-
-                                <FormControl fullWidth>
-                                    <InputLabel id="label-church">Igreja</InputLabel>
-                                    <Select
-                                        labelId='label-church'
-                                        label="Igreja"
-                                        name="id_church"
-                                        value={formik.values.id_church}
-                                        onChange={formik.handleChange}
-                                        error={formik.touched.id_church && formik.errors.id_church}
-                                        helperText={formik.touched.id_church && formik.errors.id_church?formik.errors.id_church:''}
-
-                                    >
-                                        <MenuItem value=""></MenuItem>
-                                        {
-                                            churchs &&
-                                                churchs.map(
-                                                    church =>(
-                                                        <MenuItem value={church.id} key={church.id}>{church.name_church}</MenuItem>
-                                                    )
-                                                )
-                                        }
-                                    </Select>
-                                </FormControl>
-
-                                    
-                                <Stack direction='row' justifyContent='flex-end' spacing={3} sx={{paddingTop:'1rem'}}>
-                                    <LoadingButton type="submit" loading={loadingButton}  variant='outlined'>Salvar</LoadingButton>
-                                    <Button color="error" onClick={()=>handleShowModal()} variant='outlined'>Cancelar</Button>
-                                </Stack>
-                            </Stack>
-                        </form>
-                    </Box>
-                </ContainerBox>
-            </ModalBox>
-
-            {/* Gerador de QRCODE */}
-
-            <ModalBox
-                open={modalPrintQrcode}
-                onClose={()=>handleCloseModalQrCode()}
-            >
-                <ContainerPrint >
-                    <ToolsPrint className='no-print'>
-                    <InputStart>
-                        <TextField  name='inicio' type="number" size='small' label="Iniciar a partir" value={positionPrint} onChange={(e)=>setPositionPrint(e.target.value)} inputProps={{min:0, max:9}}  fullWidth/>         
-                    </InputStart>
-                    <Print onClick={()=>window.print()}/>
-                    <Close onClick={()=>handleCloseModalQrCode()}/>
-                    </ToolsPrint>
-                    <SectionPrint className='print'>
-                        {
-                            RenderListQrcode()
-                        }
-                    </SectionPrint>                   
-                </ContainerPrint>
-
-            </ModalBox>
-
-            {/*Visualizado de Informaçoes do client */}
-
-            <ModalBox
-                open={modalViewClient}
-                onClose={()=>setModalViewClient()}
-            >
-                <BoxModal
-                    titleModal={dataViewClient?.name_client ?? ''}
-                    handleClose={()=>setModalViewClient()}
-                >
-                    <ViewClient 
-                        client={dataViewClient} 
-                        handleClose={setModalViewClient.bind()} 
-                        actions={actions} 
-                        updateViewUser={handleViewClient} 
-                        updateListPage = {getClients}
-                    />
-                </BoxModal>
-            </ModalBox>
-            
-            <ConfirmNewSold 
-                open={confimerNewSold}
-                onClose={setConfimerNewSold}
-                handleClick={handleOpenModalNewSold}
-            />
-
-            <ModalBox
-                open={modalSold}
-                onClose={setModalSold}
-            >
-                <BoxModal>
-                    <FormSales
-                        clientURL={dataClientSale}
-                        setCloseModal={setModalSold}
-                    />
-                </BoxModal>
-            </ModalBox>
-
+          
             {
-                loading&&
-                <Loading/>
+                listModals.map(modal=>(
+                    <ModalDefault
+                        key={modal.infoheader.title}
+                        open={modal.open}
+                        onClose={modal.onclose}
+                        infoheader={modal.infoheader}
+                    >
+                        {modal.content}
+                    </ModalDefault>
+
+                ))
             }
+
         </Container>
     )
 }
