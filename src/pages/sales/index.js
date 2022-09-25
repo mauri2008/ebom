@@ -79,6 +79,7 @@ export default function Sales(){
             [
                 {key:'id', title:'id'},
                 {key:'client', title:'Participane'},
+                {key:'name_church', title:'Congregação'},
                 {key:'value_sale', title:'Valor'},
                 {key:'paying_sale', title:'Pagante'},
                 {key:'paid_sale', title:'Pago'},
