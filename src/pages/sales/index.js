@@ -62,8 +62,14 @@ export default function Sales(){
     const getData = async ()=>{
         setLoading(true);
         setListData(false);
+        const listOptionsStatus ={
+            open:'amountOpen',
+            close:'amountClose',
+            exempt:'amountExempt',
+            full:'amountFull',
+        } 
          
-        const offset = (pageNow-1)*10
+        const offset = (pageNow-1)*limitData
         const response =(search) ? 
                         await api.insert(`${ENDPOINT}/search`,{ search, orderby, offset, limit:limitData }, actions)
                         :
@@ -73,8 +79,10 @@ export default function Sales(){
             setLoading(false)
             return ''
         }
-        
-        setCountPages(response.pages)
+
+        const amountPages = Math.ceil(response.statusList[listOptionsStatus[activeStatus]] / limitData)
+
+        setCountPages(amountPages)
         setListData(setDataTable(response.data, 
             [
                 {key:'id', title:'id'},
@@ -90,12 +98,7 @@ export default function Sales(){
 
         setStatusLists(response.statusList)
 
-        const listOptionsStatus ={
-            open:'amountOpen',
-            close:'amountClose',
-            exempt:'amountExempt',
-            full:'amountFull',
-        } 
+
 
         setCountdata(response.statusList[listOptionsStatus[activeStatus]]);
         setLoading(false);       
