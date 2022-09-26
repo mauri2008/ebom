@@ -18,6 +18,10 @@ export const ContainerBox = styled.div`
     .inputUser{
         margin-bottom: 20px;
     }
+
+    @media (max-width:768px){
+        width: 100% ;
+    }
 `;
 
 export const HeaderBox = styled.header`
@@ -59,19 +63,31 @@ export const ContentList = styled.article`
 `
 
 export const ItensList = styled.div`
+    width: 100% ;
     display:grid;
-    grid-template-columns: 3.5% repeat(6,15.3%);
-    gap:0.5rem;
+    grid-template-columns: 3.5% repeat(4,18.9%) 1fr;
+    gap:0.8rem;
     text-align: left;
     margin-bottom: 0.5rem;
-    padding:1.5rem;
+    padding:1rem;
     border:1px solid var(--bs-gray-500);
     border-radius:5px;
     align-items: center ;
     box-sizing:border-box ;
-    width:100%;
-`
 
+    @media (max-width:1024px){
+        display: flex ;
+        flex-direction:column ;
+    }
+`
+export const LabelItensList = styled.div`
+    width: 100% ;
+    box-sizing:border-box ;
+
+    p{
+        word-wrap:break-word ;
+    }
+`
 export const GroupBottomList = styled.div`
     width:100% ;
     display: flex ;

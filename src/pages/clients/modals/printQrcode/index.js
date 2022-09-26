@@ -54,7 +54,6 @@ export function PrintQrcode ({ clients }) {
         for (let i = 0 ; i < 21; i++ )
         {        
             if (i >= printPosition && pointerCode < countQrcodes) {
-                
                 container.push(contentQrcode(clients[pointerCode]));
                 pointerCode = pointerCode + 1;
                 console.log(pointerCode)

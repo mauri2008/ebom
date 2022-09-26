@@ -15,7 +15,7 @@ export const PrizeDraw = () => {
 
     const history = useHistory();
     const api = useApi();
-    const { state, actions } = useContext(StateContext);
+    const { actions } = useContext(StateContext);
 
     const [toView, setToView] = useState(false);
     const [ list, setList ] = useState([]);
