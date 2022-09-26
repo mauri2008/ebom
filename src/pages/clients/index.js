@@ -28,7 +28,8 @@ import {
     Content ,
     ContentList,
     ItensList,
-    GroupBottomList
+    GroupBottomList,
+    LabelItensList
 } from './style';
 import { Edit, Person, Delete } from '@mui/icons-material'
 import Paginations from '../../components/pagination'
@@ -100,11 +101,11 @@ export default function Clients(){
 
     const handleQrCode= (element)=>{
         const idClient = parseInt(element.target.value)
-        console.log(element.target.value)
+
         if(element.target.checked){
             const dataClient = listClient.find(item => parseInt(item.id) === idClient)
-            console.log(dataClient)
-            setClientsSelects([...clientsSelects, {id:dataClient.id, name:dataClient.Nome}]);
+            console.log('console:',dataClient)
+            setClientsSelects([...clientsSelects, {id:dataClient.id, name:dataClient.name_client}]);
         }else{
             let newIdList =clientsSelects.filter(item => parseInt(item.id) !== parseInt(element.target.value));
             setClientsSelects(newIdList)  
@@ -264,12 +265,18 @@ export default function Clients(){
                                                         onClick={handleQrCode}
                                                         disabled={ !client.paid_sale || client.paid_sale === 'no'}
                                                     />
-                                                    <p>{client.name_client??'-'}</p>
-                                                    <p>{client.email??'-'}</p>
-                                                    <p>{client.name_church??'-'}</p>
-                                                    {/* <p>{client.phone}</p> */}
-                                                    <p>{client.paying_sale === 'yes' ? 'Pagante':'Isento' }</p>
-
+                                                        <LabelItensList>
+                                                            <p>{client.name_client??'-'}</p>
+                                                        </LabelItensList>
+                                                        <LabelItensList>
+                                                            <p>{client.email??'-'}</p>
+                                                        </LabelItensList>
+                                                        <LabelItensList>
+                                                            <p>{client.name_church??'-'}</p>
+                                                        </LabelItensList>
+                                                        <LabelItensList>
+                                                            <p>{client.paying_sale === 'yes' ? 'Pagante':'Isento' }</p>
+                                                        </LabelItensList>
                                                     <GroupBottomList>
                                                         {
                                                             listButton.map(button => (
