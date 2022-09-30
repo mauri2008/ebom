@@ -11,15 +11,13 @@ import { Print } from '@mui/icons-material'
 import { useState } from 'react';
 import QRCode from 'react-qr-code'
 import { useEffect } from 'react';
-import UseApi from '../../../../services/api' 
-import { StateContext } from '../../../../context'
-import { useContext } from 'react';
+import { paramsSystem } from '../../../../helpes/paramsSystem';
 
-export function PrintQrcode ({ clients }) {
 
-    const api = UseApi();
+export function PrintQrcode ({ clients , onclose}) {
+
     const [ printPosition, setPrintPosition ] = useState(0);
-    const { actions } = useContext(StateContext)
+
 
     function handleSetPostion ( event ) {
         const position = event.target.value ;
@@ -37,6 +35,7 @@ export function PrintQrcode ({ clients }) {
             </Codes>
         )
     }
+    
 
     function RenderListQrcode () {
            
@@ -69,11 +68,12 @@ export function PrintQrcode ({ clients }) {
         try{
             const listIdClient = clients.map(client => client.id)
             
-            const response = api.insert('clients/print',{ids:JSON.stringify(listIdClient)},actions);
-            if(response){
-                window.print()
-            }
+            const url = `clients/print?ids=${JSON.stringify(listIdClient)}&initialposition=${printPosition}`;
+
+            window.open(`${paramsSystem.URLBASE}${url}`)
            
+            onclose()
+            
         }catch(error){
             console.log(error)
         }
