@@ -31,7 +31,7 @@ import {
     GroupBottomList,
     LabelItensList
 } from './style';
-import { Edit, Person, Delete } from '@mui/icons-material'
+import { Edit, Person, Delete, QrCode } from '@mui/icons-material'
 import Paginations from '../../components/pagination'
 import { ModalDefault } from '../../components/Modal';
 import { RegisterClient } from './modals/registerClient';
@@ -125,21 +125,29 @@ export default function Clients(){
         setUpdateClient(idupdate)   
     }
 
+    function handleCloseModalPrint () {
+        setModalPrintQrcode(false)
+        setClientsSelects([]);
+        getClients()
+    }
+
     const listButton = [
         {
             title: 'Editar',
             handle: idClient => handleOpenUpdate(idClient),
-            icon:(<Edit/>)
+            icon:(<Edit/>),
+            color:'warning'
         },
         {
             title:'Visualizar',
             handle: idClient => handleViewClient(idClient),
-            icon:(<Person />)
+            icon:(<Person />),
         },
         {
             title:'Remover',
             handle:idClient => handleDeleteClients(idClient),
-            icon:(<Delete/>)
+            icon:(<Delete/>),
+            color:'error'
         }
     ]
 
@@ -152,7 +160,7 @@ export default function Clients(){
                 subtitle:`Para Imprimir as etiquetas com qrcode 
                 primeiramente selecione a possição inicial.`
             },
-            content:(<PrintQrcode clients={clientsSelects} />)
+            content:(<PrintQrcode clients={clientsSelects} onclose={handleCloseModalPrint} />)
         },
         {
             open:modalNewClient,
@@ -279,8 +287,14 @@ export default function Clients(){
                                                         </LabelItensList>
                                                     <GroupBottomList>
                                                         {
+                                                            !!client.print &&
+                                                                <IconButton color='success' title='QrCode impresso'>
+                                                                    <QrCode/>
+                                                                </IconButton>
+                                                        }
+                                                        {
                                                             listButton.map(button => (
-                                                                <IconButton  onClick={()=>button.handle(client.id)} title={button.title} key={button.title}>
+                                                                <IconButton color={button?.color?? 'primary'}  onClick={()=>button.handle(client.id)} title={button.title} key={button.title}>
                                                                     {button.icon}
                                                                 </IconButton>
                                                             ))

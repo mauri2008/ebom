@@ -53,6 +53,7 @@ export default function Sales(){
     const [ statusList, setStatusLists ] = useState({});
     const [ activeStatus, setActiveStatus] = useState('full')
     const [ search, setSearch] = useState('');
+    const [ inputSearch, setInputSearch ] = useState('')
     const [ limitData, setLimitData ] = useState(10)
 
     const {state, actions} = useContext(StateContext)
@@ -119,7 +120,7 @@ export default function Sales(){
     const handleSearch = async (element) =>{
         if(element.key ==='Enter')
         {
-            getData(element.target.value);
+            setSearch(element.target.value)
         }
     }
 
@@ -298,8 +299,8 @@ export default function Sales(){
                                     name="Pesquisar"
                                     type="text"
                                     label="Pesquisar"
-                                    value={search}
-                                    onChange={(e)=>setSearch(e.target.value)}
+                                    value={inputSearch}
+                                    onChange={(e)=>setInputSearch(e.target.value)}
                                     onKeyUp={(e)=> handleSearch(e)}
                                 />
                                     
