@@ -1,16 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Header from '../../components/header';
-import HeaderTable from '../../components/Table/header';
 import NotFoundData from '../../components/notFoundData';
 import UseApi from '../../services/api'
 import { StateContext } from '../../context';
+import { useFormik } from 'formik';
 import {
     TextField,
     Checkbox,
     Button,
     IconButton,
     MenuItem,
-    Stack
 } from '@mui/material';
 
 import { handleDelete } from '../../services/actionsRest'
@@ -20,8 +19,6 @@ import { ListItens } from '../../components/ItemsList';
 
 import { PrintQrcode } from './modals/printQrcode';
 
-import { searchClient } from '../../helpes/functions'
-
 import Add from '@mui/icons-material/Add';
 import { 
     Container, 
@@ -29,9 +26,12 @@ import {
     ContentList,
     ItensList,
     GroupBottomList,
-    LabelItensList
+    LabelItensList,
+    HeaderContent,
+    TitleHeaderContent,
+    FormFilterHeader
 } from './style';
-import { Edit, Person, Delete, QrCode } from '@mui/icons-material'
+import { Edit, Person, Delete, QrCode, Search } from '@mui/icons-material'
 import Paginations from '../../components/pagination'
 import { ModalDefault } from '../../components/Modal';
 import { RegisterClient } from './modals/registerClient';
@@ -49,21 +49,27 @@ export default function Clients(){
     const [ modalViewClient, setModalViewClient] = useState(false)
     const [ countPages, setCountPages] = useState(0);
     const [ pageNow, setPageNow] = useState(1);
-    const [ search, setSearch ] = useState('');
     const [ updateClient, setUpdateClient ] = useState(false);
     const [ idUserView, setIdUserView] = useState(0);
-    const [ totalItens, setTotalItens ] = useState(10)
+    const [ totalItens, setTotalItens ] = useState(10);
+    const [ listChurchs, setListChurchs ] = useState([]);
+    const [ isSearch, setIsSearch ] = useState('')
+    const [ qtdView, setQtdView ] = useState(10)
     
     const { actions, state } = useContext(StateContext)
     const api = UseApi();
 
 
-    const getClients = async (itemSearch = false)=>{
+    const getClients = async ()=>{
         setLoading(true);
-        const offset = (pageNow-1)*10;
-        const response =itemSearch? await api.insert(`${ENDPOINT}/search`,{search:'list',value:itemSearch}, actions):await api.get(`${ENDPOINT}/${offset}/${totalItens}`, actions);
+        const offset = isSearch.length ? (pageNow-1)*qtdView  : (pageNow-1)*10;
+        const response = isSearch.length ? 
+                            await api.get(`${ENDPOINT}/filter${isSearch}&page=${offset}`, actions)
+                            :
+                            await api.get(`${ENDPOINT}/${offset}/10`, actions);
 
-        if(Object.keys(response.data).length === 0){          
+        if(!response?.data){ 
+
             setLoading(false)
             return ''
         }
@@ -72,6 +78,17 @@ export default function Clients(){
         setCountPages(response?.pages)
         setCountClient(response?.total ?? 0)
         setLoading(false);       
+    }
+
+    async function getListChurchs () {
+        const responseChurchs = await api.get('church',actions);
+
+        if(responseChurchs?.data)
+        {
+            const listOptionsChuchs = responseChurchs.data.map(church => {return {value:church.id, label: church.name_church}})
+
+            setListChurchs(listOptionsChuchs);
+        }
     }
 
     const handleDeleteClients = (id)=>{
@@ -87,14 +104,6 @@ export default function Clients(){
 
     }
 
-
-    const handleSearch = async (element) =>{
-        if(element.key ==='Enter')
-        {
-            getClients(element.target.value !== '' ? element.target.value : false);               
-        }
-    }
-
     const handlePagination= (event, value) => {     
         setPageNow(value)
     }
@@ -104,7 +113,6 @@ export default function Clients(){
 
         if(element.target.checked){
             const dataClient = listClient.find(item => parseInt(item.id) === idClient)
-            console.log('console:',dataClient)
             setClientsSelects([...clientsSelects, {id:dataClient.id, name:dataClient.name_client}]);
         }else{
             let newIdList =clientsSelects.filter(item => parseInt(item.id) !== parseInt(element.target.value));
@@ -191,15 +199,33 @@ export default function Clients(){
         setModalNewClient(true)
     }
 
-    function handleSetTotalItens ( element ) {
-        setTotalItens(element.target.value)
-    }
+    const formik = useFormik({
+        initialValues:{
+            idChurch:'0',
+            statusPay:'0',
+            qtdItens:'10',
+            search:''
+        },
+        onSubmit: values=>{
+            let queryString = `?limit=${values.qtdItens}`;
+
+            if(values.idChurch !== '0') queryString = `${queryString}&idchurch=${values.idChurch}`;
+            if(values.statusPay !== '0') queryString = `${queryString}&statuspay=${values.statusPay}`;
+            if(values.search !== '') queryString = `${queryString}&search=${values.search}`;
+
+            setIsSearch(queryString)
+            setQtdView(values.qtdItens)
+        }
+    })
     
     useEffect(()=>{ getClients() },[pageNow, totalItens])
 
     useEffect(()=>{
         getClients()
-    },[])
+        if(!isSearch.length){
+            getListChurchs()
+        }
+    },[isSearch])
 
     useEffect(()=>{
         
@@ -211,6 +237,7 @@ export default function Clients(){
 
     return (
         <Container> 
+
             <Header
                 title="Participantes"
                 titleButton='Adicionar participantes'
@@ -218,37 +245,79 @@ export default function Clients(){
                 IconButton={Add}
             />
             <Content>
-                <HeaderTable
-                    title="Lista de participantes"
-                    subtitle={`Total de participantes: ${countClient}`}
-                    >
-                    <Stack spacing={1} direction='row' sx={{ minWidth:'400px' }}>
-                        <TextField
-                            label='Qt. itens'
-                            size='small'
-                            value={totalItens}
-                            onChange={handleSetTotalItens}
-                            select
-                            fullWidth
-                        >
-                            <MenuItem value='10'> 10 </MenuItem>
-                            <MenuItem value='20'> 20 </MenuItem>
-                            <MenuItem value='30'> 30 </MenuItem>
-                        </TextField>
+                <HeaderContent>
+                    <TitleHeaderContent>
+                        <h4>Lista de participantes</h4>
+                        <span>{`Total de participantes: ${countClient}`}</span>
+                    </TitleHeaderContent>
+                    <FormFilterHeader onSubmit={formik.handleSubmit}>
+  
+                            <TextField
+                                label='Congregação'
+                                size='small'
+                                name='idChurch'
+                                select
+                                value={formik.values.idChurch}
+                                onChange={formik.handleChange}
+                            >
+                                <MenuItem value='0'>Todas</MenuItem>
+                                {
+                                    listChurchs &&
+                                        listChurchs.map(church =>(
+                                            <MenuItem value={church.value} >{church.label}</MenuItem>
+                                        ))
+                                }
+                            </TextField>
 
-                        <TextField 
-                            name="Pesquisar"
-                            type="text"
-                            label="Pesquisar"
-                            size='small'
-                            value={search}
-                            onChange={(e)=> setSearch(e.target.value)}
-                            onKeyUp={(e)=> handleSearch(e)}
-                            fullWidth
-                        />
+                            <TextField
+                                select
+                                label='Status Pagamento'
+                                name='statusPay'
+                                value={formik.values.statusPay}
+                                onChange={formik.handleChange}
+                                size='small'
+                            >
+                                <MenuItem value='0'>Todos</MenuItem>
+                                <MenuItem value='yes'>Pago</MenuItem>
+                                <MenuItem value='no'>Em aberto</MenuItem>4
+                                <MenuItem value='isento'>Isento</MenuItem>
+                            </TextField>
 
-                    </Stack>
-                </HeaderTable>
+
+                            <TextField
+                                label='Qt. itens'
+                                size='small'
+                                name='qtdItens'
+                                value={formik.values.qtdItens}
+                                onChange={formik.handleChange}
+                                select
+                                
+                            >
+                                <MenuItem value='10'> 10 </MenuItem>
+                                <MenuItem value='30'> 30 </MenuItem>
+                                <MenuItem value='50'> 50 </MenuItem>
+                            </TextField>
+
+                            <TextField 
+                                name="search"
+                                type="text"
+                                label="Pesquisar"
+                                size='small'
+                                value={formik.values.search}
+                                onChange={formik.handleChange}                                
+                            />
+
+                            <Button
+                                size='small'
+                                variant='contained'
+                                type='submit'
+                            >   
+                                <Search/>
+                                Filtrar
+                            </Button>
+
+                    </FormFilterHeader>
+                </HeaderContent>
                 <div>
                     {
                         clientsSelects.length >0 &&
@@ -264,47 +333,53 @@ export default function Clients(){
                         listClient && !loading &&
                             <>
                                 <ContentList>
-                                    {listClient.map(client=> {
-                                        return (
-                                            <ListItens key={client.id}>
-                                                <ItensList>
-                                                    <Checkbox 
-                                                        value={client.id}
-                                                        onClick={handleQrCode}
-                                                        disabled={ !client.paid_sale || client.paid_sale === 'no'}
-                                                    />
-                                                        <LabelItensList>
-                                                            <p>{client.name_client??'-'}</p>
-                                                        </LabelItensList>
-                                                        <LabelItensList>
-                                                            <p>{client.email??'-'}</p>
-                                                        </LabelItensList>
-                                                        <LabelItensList>
-                                                            <p>{client.name_church??'-'}</p>
-                                                        </LabelItensList>
-                                                        <LabelItensList>
-                                                            <p>{client.paying_sale === 'yes' ? 'Pagante':'Isento' }</p>
-                                                        </LabelItensList>
-                                                    <GroupBottomList>
-                                                        {
-                                                            !!client.print &&
-                                                                <IconButton color='success' title='QrCode impresso'>
-                                                                    <QrCode/>
-                                                                </IconButton>
-                                                        }
-                                                        {
-                                                            listButton.map(button => (
-                                                                <IconButton color={button?.color?? 'primary'}  onClick={()=>button.handle(client.id)} title={button.title} key={button.title}>
-                                                                    {button.icon}
-                                                                </IconButton>
-                                                            ))
-                                                        }
-                                                    </GroupBottomList>
 
-                                                </ItensList>
-                                            </ListItens>
-                                        )
-                                    })}
+                                    {
+                                        listClient.length ?
+                                            listClient.map(client=> {
+                                                return (
+                                                    <ListItens key={client.id}>
+                                                        <ItensList>
+                                                            <Checkbox 
+                                                                value={client.id}
+                                                                onClick={handleQrCode}
+                                                                disabled={ !client.paid_sale || client.paid_sale === 'no'}
+                                                            />
+                                                                <LabelItensList>
+                                                                    <p>{client.name_client??'-'}</p>
+                                                                </LabelItensList>
+                                                                <LabelItensList>
+                                                                    <p>{client.email??'-'}</p>
+                                                                </LabelItensList>
+                                                                <LabelItensList>
+                                                                    <p>{client.name_church??'-'}</p>
+                                                                </LabelItensList>
+                                                                <LabelItensList>
+                                                                    <p>{client.paying_sale === 'yes' ? 'Pagante':'Isento' }</p>
+                                                                </LabelItensList>
+                                                            <GroupBottomList>
+                                                                {
+                                                                    !!client.print &&
+                                                                        <IconButton color='success' title='QrCode impresso'>
+                                                                            <QrCode/>
+                                                                        </IconButton>
+                                                                }
+                                                                {
+                                                                    listButton.map(button => (
+                                                                        <IconButton color={button?.color?? 'primary'}  onClick={()=>button.handle(client.id)} title={button.title} key={button.title}>
+                                                                            {button.icon}
+                                                                        </IconButton>
+                                                                    ))
+                                                                }
+                                                            </GroupBottomList>
+
+                                                        </ItensList>
+                                                    </ListItens>
+                                                )
+                                            })
+                                        : <NotFoundData/>
+                                        
+                                    }
                                 </ContentList>
                                 <Paginations count={countPages} page={pageNow} handleChange={handlePagination.bind(this)}/>
                             </>

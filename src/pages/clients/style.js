@@ -62,10 +62,28 @@ export const ContentList = styled.article`
     width: 100% ;
 `
 
+export const HeaderContent = styled.div`
+    display: flex ;
+    justify-content:space-between ;
+    margin-bottom:1.5rem ;
+`
+export const TitleHeaderContent = styled.div``
+
+export const FormFilterHeader = styled.form`
+    display: flex ;
+    flex:1;
+    justify-content: flex-end ;
+    gap: 0.8rem;
+    & div:first-child{
+        min-width: 5rem ;
+    }
+
+`
+
 export const ItensList = styled.div`
     width: 100% ;
     display:grid;
-    grid-template-columns: 3.5% repeat(4,18.9%) 1fr;
+    grid-template-columns: 3.5%  repeat(4,20%) 1fr;
     gap:0.8rem;
     text-align: left;
     margin-bottom: 0.5rem;
