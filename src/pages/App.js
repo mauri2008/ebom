@@ -1,19 +1,16 @@
-import React, {useContext, useEffect} from 'react';
-import { BrowserRouter } from 'react-router-dom'
-import { GlobalStyle } from '../templates/styleGlobal';
-import Routes from '../routes';
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { GlobalStyle } from "../templates/styleGlobal";
+import Routes from "../routes";
 
-import { Context, StateContext } from '../context'
-
+import { Context } from "../context";
 
 function App() {
-
- 
   return (
     <BrowserRouter basename="/ebom2022">
-      <GlobalStyle/>
+      <GlobalStyle />
       <Context>
-        <Routes/>
+        <Routes />
       </Context>
     </BrowserRouter>
   );
